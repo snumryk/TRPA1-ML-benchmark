@@ -1,0 +1,23 @@
+﻿group,value,n_records
+activity_type,IC50,2370
+activity_type,KON,1530
+activity_type,K_OFF,1530
+activity_type,INHIBITION,41
+activity_type,PIC50,40
+activity_type,ACTIVITY,17
+relation,=,5304
+relation,>,126
+relation,<MISSING>,86
+relation,<,12
+standard_text_value,<MISSING>,5491
+standard_text_value,Not active,37
+descriptive_flag,exact_ic50,2208
+descriptive_flag,interval_ic50,0
+descriptive_flag,right_censored_ic50,126
+descriptive_flag,left_censored_ic50,9
+descriptive_flag,text_contains_inactive,39
+descriptive_flag,single_point_inhibition,41
+descriptive_flag,missing_structure,9
+descriptive_flag,potential_duplicate_true,42
+descriptive_flag,has_validity_comment,7
+descriptive_flag,missing_target_organism,0

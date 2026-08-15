@@ -1,0 +1,17 @@
+{
+  "extraction_time_utc": "2026-07-22T15:09:47.322568+00:00",
+  "chembl_db_version": "ChEMBL_37",
+  "chembl_release_date": "2026-05-01",
+  "target_chembl_id": "CHEMBL6007",
+  "standard_type": "IC50",
+  "standard_relation": "=",
+  "requires_pchembl": true,
+  "raw_activity_count_v37": 2196,
+  "compound_count_v36": 1645,
+  "compound_count_v37": 1645,
+  "overlap_compounds": 1645,
+  "new_compounds_v37": 0,
+  "removed_compounds_v37": 0,
+  "changed_overlapping_compounds": 0,
+  "maximum_document_year": 2025
+}

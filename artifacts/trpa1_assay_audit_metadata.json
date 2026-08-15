@@ -1,0 +1,377 @@
+{
+  "run_time_utc": "2026-07-24T13:21:02.583338+00:00",
+  "input_file": "C:\\trpa1_data\\trpa1_current_api_raw.csv",
+  "input_sha256": "6a98bcfe1f9b531e6a1ed9edc21d5d2fd4d13371651965a70a966c86ff05eb2a",
+  "output_file": "C:\\trpa1_data\\trpa1_assay_audit.csv",
+  "summary_file": "C:\\trpa1_data\\trpa1_assay_audit_summary.csv",
+  "cache_file": "C:\\trpa1_data\\trpa1_assay_cache.json",
+  "chembl_status": {
+    "activities": 24527044,
+    "chembl_db_version": "ChEMBL_37",
+    "chembl_release_date": "2026-05-01",
+    "compound_records": 3824604,
+    "disinct_compounds": 2921148,
+    "publications": 101100,
+    "status": "UP",
+    "targets": 18552
+  },
+  "python_version": "3.13.13 | packaged by conda-forge | (main, Apr  8 2026, 01:56:49) [MSC v.1944 64 bit (AMD64)]",
+  "package_versions": {
+    "pandas": "3.0.3",
+    "requests": "2.34.2",
+    "chembl_webresource_client": "0.10.9"
+  },
+  "n_activity_rows": 2196,
+  "n_unique_compounds": 1645,
+  "n_assays_expected": 97,
+  "n_assays_written": 97,
+  "n_api_errors": 0,
+  "api_errors": [],
+  "keyword_rules": {
+    "calcium": [
+      [
+        "calcium",
+        "\\bcalcium\\b"
+      ],
+      [
+        "calcium_flux",
+        "\\bcalcium[ -]flux\\b"
+      ],
+      [
+        "calcium_mobilization",
+        "\\bcalcium[ -]mobili[sz]ation\\b"
+      ],
+      [
+        "intracellular_ca",
+        "\\bintracellular\\s+ca(?:2\\+|\\+2)?\\b"
+      ],
+      [
+        "ca2+",
+        "\\bca\\s*(?:2\\+|\\+2)\\b"
+      ],
+      [
+        "fluo-4",
+        "\\bfluo[ -]?4\\b"
+      ],
+      [
+        "fura-2",
+        "\\bfura[ -]?2\\b"
+      ],
+      [
+        "flipr",
+        "\\bflipr\\b"
+      ]
+    ],
+    "electrophysiology": [
+      [
+        "patch_clamp",
+        "\\bpatch[ -]?clamp\\b"
+      ],
+      [
+        "electrophysiology",
+        "\\belectrophysiolog\\w*\\b"
+      ],
+      [
+        "whole_cell",
+        "\\bwhole[ -]?cell\\b"
+      ],
+      [
+        "voltage_clamp",
+        "\\bvoltage[ -]?clamp\\b"
+      ],
+      [
+        "membrane_current",
+        "\\bmembrane\\s+current\\b"
+      ],
+      [
+        "ionic_current",
+        "\\bionic\\s+current\\b"
+      ],
+      [
+        "current_amplitude",
+        "\\bcurrent\\s+amplitude\\b"
+      ],
+      [
+        "holding_potential",
+        "\\bholding\\s+potential\\b"
+      ]
+    ],
+    "fluorescence": [
+      [
+        "fluorescence",
+        "\\bfluorescen\\w*\\b"
+      ],
+      [
+        "fluorometric",
+        "\\bfluorometric\\b"
+      ],
+      [
+        "fluo-4",
+        "\\bfluo[ -]?4\\b"
+      ],
+      [
+        "fura-2",
+        "\\bfura[ -]?2\\b"
+      ],
+      [
+        "flipr",
+        "\\bflipr\\b"
+      ]
+    ],
+    "binding": [
+      [
+        "binding",
+        "\\bbinding\\b"
+      ],
+      [
+        "radioligand",
+        "\\bradioligand\\b"
+      ],
+      [
+        "displacement",
+        "\\bdisplacement\\b"
+      ]
+    ],
+    "aitc": [
+      [
+        "AITC",
+        "\\baitc\\b"
+      ],
+      [
+        "allyl_isothiocyanate",
+        "\\ballyl\\s+isothiocyanate\\b"
+      ],
+      [
+        "mustard_oil",
+        "\\bmustard\\s+oil\\b"
+      ]
+    ],
+    "cinnamaldehyde": [
+      [
+        "cinnamaldehyde",
+        "\\bcinnamaldehyde\\b"
+      ],
+      [
+        "cinnamald",
+        "\\bcinnamald\\w*\\b"
+      ]
+    ],
+    "jt010": [
+      [
+        "JT010",
+        "\\bjt[ -]?010\\b"
+      ]
+    ],
+    "other_named_agonist": [
+      [
+        "acrolein",
+        "\\bacrolein\\b"
+      ],
+      [
+        "allicin",
+        "\\ballicin\\b"
+      ],
+      [
+        "methylglyoxal",
+        "\\bmethylglyoxal\\b"
+      ],
+      [
+        "4-HNE",
+        "\\b(?:4[ -]?)?hydroxynonenal\\b|\\b4[ -]?hne\\b"
+      ],
+      [
+        "carvacrol",
+        "\\bcarvacrol\\b"
+      ],
+      [
+        "thymol",
+        "\\bthymol\\b"
+      ],
+      [
+        "menthol",
+        "\\bmenthol\\b"
+      ]
+    ],
+    "agonist_context": [
+      [
+        "agonist",
+        "\\bagonist\\w*\\b"
+      ],
+      [
+        "activation",
+        "\\bactivat(?:e|ed|es|ing|ion)\\b"
+      ],
+      [
+        "evoked",
+        "\\bevoked\\b"
+      ],
+      [
+        "induced",
+        "\\binduced\\b"
+      ],
+      [
+        "stimulated",
+        "\\bstimulat(?:e|ed|es|ing|ion)\\b"
+      ]
+    ],
+    "preincubation": [
+      [
+        "preincubation",
+        "\\bpre[ -]?incubat\\w*\\b"
+      ],
+      [
+        "pretreatment",
+        "\\bpre[ -]?treat\\w*\\b"
+      ],
+      [
+        "before_agonist",
+        "\\bbefore\\s+(?:agonist|aitc|allyl\\s+isothiocyanate)\\b"
+      ]
+    ],
+    "coapplication": [
+      [
+        "coapplication",
+        "\\bco[ -]?applicat\\w*\\b"
+      ],
+      [
+        "simultaneous",
+        "\\bsimultaneous(?:ly)?\\b"
+      ],
+      [
+        "concomitant",
+        "\\bconcomitant(?:ly)?\\b"
+      ]
+    ],
+    "postactivation": [
+      [
+        "after_activation",
+        "\\bafter\\s+(?:channel\\s+)?activat\\w*\\b"
+      ],
+      [
+        "following_activation",
+        "\\bfollowing\\s+(?:channel\\s+)?activat\\w*\\b"
+      ],
+      [
+        "post_activation",
+        "\\bpost[ -]?activat\\w*\\b"
+      ],
+      [
+        "sustained_current",
+        "\\bsustained\\s+current\\b"
+      ]
+    ],
+    "inhibition": [
+      [
+        "antagonist",
+        "\\bantagonis(?:t|ts|m|tic)\\b"
+      ],
+      [
+        "inhibition",
+        "\\binhibit\\w*\\b"
+      ],
+      [
+        "block",
+        "\\bblock(?:ed|er|ers|ing|ade|ades)?\\b"
+      ],
+      [
+        "IC50",
+        "\\bic\\s*50\\b"
+      ]
+    ],
+    "direct_agonism": [
+      [
+        "agonist_activity",
+        "\\bagonist\\s+activity\\b"
+      ],
+      [
+        "as_an_agonist",
+        "\\bas\\s+an?\\s+agonist\\b"
+      ],
+      [
+        "compound_induced_activation",
+        "\\b(?:compound|test\\s+compound)[ -]induced\\s+activat\\w*\\b"
+      ],
+      [
+        "activation_by_compound",
+        "\\bactivat\\w*\\s+by\\s+(?:the\\s+)?(?:compound|test\\s+compound)\\b"
+      ]
+    ],
+    "mutant_or_chimera": [
+      [
+        "mutant",
+        "\\bmutant\\w*\\b"
+      ],
+      [
+        "mutation",
+        "\\bmutation\\w*\\b"
+      ],
+      [
+        "chimera",
+        "\\bchimer\\w*\\b"
+      ],
+      [
+        "variant",
+        "\\bvariant\\b"
+      ],
+      [
+        "C621",
+        "\\bc621\\b"
+      ],
+      [
+        "C641",
+        "\\bc641\\b"
+      ],
+      [
+        "C665",
+        "\\bc665\\b"
+      ],
+      [
+        "N855",
+        "\\bn855\\b"
+      ]
+    ],
+    "wild_type": [
+      [
+        "wild_type",
+        "\\bwild[ -]?type\\b"
+      ],
+      [
+        "WT",
+        "\\bwt\\b"
+      ]
+    ],
+    "human": [
+      [
+        "human",
+        "\\bhuman\\b"
+      ],
+      [
+        "hTRPA1",
+        "\\bhtrpa1\\b"
+      ]
+    ],
+    "hek293": [
+      [
+        "HEK293",
+        "\\bhek[ -]?293\\w*\\b"
+      ]
+    ],
+    "cho": [
+      [
+        "CHO",
+        "\\bcho(?:[ -]?k1)?\\b"
+      ]
+    ],
+    "xenopus": [
+      [
+        "Xenopus",
+        "\\bxenopus\\b"
+      ],
+      [
+        "oocyte",
+        "\\boocyte\\w*\\b"
+      ]
+    ]
+  },
+  "methodological_warning": "Automatic flags are keyword-based triage only. In particular, calcium plus AITC does not establish a homogeneous antagonist assay; application order, readout, expression system, construct, direct agonism, and desensitization risk require manual review."
+}

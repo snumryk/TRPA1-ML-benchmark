@@ -1,0 +1,6 @@
+# Keep repository text files in Unix/Linux LF format
+* text=auto eol=lf
+
+# Windows batch files may keep CRLF
+*.bat text eol=crlf
+*.cmd text eol=crlf

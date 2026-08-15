@@ -1,0 +1,30 @@
+{
+  "generated_utc": "2026-07-27T13:18:29.190886+00:00",
+  "n_assays": 97,
+  "n_activities": 2196,
+  "n_compounds": 1645,
+  "n_protocol_families": 32,
+  "n_paired_contrasts": 2,
+  "n_assays_requiring_source_review": 8,
+  "min_shared_compounds_threshold": 20,
+  "fingerprint_fields": [
+    "record_species",
+    "construct",
+    "assay_modality",
+    "challenge_agonist",
+    "agonist_level",
+    "agonist_concentration",
+    "cell_line",
+    "application_order",
+    "compound_preincubation_min"
+  ],
+  "rdkit_available": true,
+  "scipy_available": true,
+  "caveats": [
+    "Скрипт НЕ визначає причину різниць між експериментами.",
+    "Значення 'compound_preincubation_min' позначене ambiguous коли в тексті кілька чисел — воно НЕ вгадується.",
+    "Число в назві assay ('15 minutes') збережене окремо і його зміст НЕ підтверджений — може стосуватись барвника, планшета або сполуки.",
+    "Різниця медіан між експериментами не є ефектом протоколу.",
+    "Статистика на рівні каркасів чесніша за статистику на рівні молекул."
+  ]
+}

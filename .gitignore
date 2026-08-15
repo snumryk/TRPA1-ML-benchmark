@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Conda / virtual environments
+.conda/
+conda/
+miniconda/
+miniconda3/
+env/
+venv/
+.venv/
+
+# IDE
+.vscode/
+.idea/
+
+# Secrets
+.env
+*.key
+*.pem
+credentials*
+secrets*
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# Too large for normal GitHub
+Chat log with Claude.pdf
