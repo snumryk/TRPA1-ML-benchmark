@@ -60,7 +60,7 @@ N_PARTITIONS = 3
 
 DATA_DIR = Path("/content/drive/MyDrive/trpa1_project")
 
-CSV_FILE = DATA_DIR / "trpa1_antagonists.csv"
+CSV_FILE = DATA_DIR / "trpa1_primary_dataset.csv"
 NPZ_FILE = DATA_DIR / "embeddings_all.npz"
 
 OUT_PREFIX = "grid_final_v1"
@@ -83,7 +83,7 @@ def fail(msg: str) -> None:
 
 DATA_DIR = Path("/content/drive/MyDrive/trpa1_project").resolve()
 
-CSV_FILE = DATA_DIR / "trpa1_antagonists.csv"
+CSV_FILE = DATA_DIR / "trpa1_primary_dataset.csv"
 NPZ_FILE = DATA_DIR / "embeddings_all.npz"
 
 OUT_PREFIX = "grid_final"

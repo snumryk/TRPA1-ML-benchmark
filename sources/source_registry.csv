@@ -1,56 +1,57 @@
-"source_id","document_id","year","assay_ids","source_type","title","identifier","status","local_source","notes"
-"S01","CHEMBL5727829","2020","CHEMBL5735476;CHEMBL5735477","patent","Oxadiazole transient receptor potential channel inhibitors","US10711004B2","partial","no","Source family confirmed; exact assay-to-patent-column mapping remains unresolved."
-"S02","CHEMBL5726658","2019","CHEMBL5733104","patent","Inhibiting the transient receptor potential A1 ion channel","US10221177B2","partial","no","Source verified; electrophysiology protocol is incomplete and the activation agonist remains not found."
-"S03","CHEMBL5728946","2022","CHEMBL5737786","candidate patent","Thienopyrimidones","US20190144428A1;US11236046B2","recheck","no","Conflicting provenance results; title and patent mapping are not locked and must not be treated as final."
-"S04","CHEMBL5727828","2020","CHEMBL5735475;CHEMBL5735474","patent","Oxadiazole transient receptor potential channel inhibitors","US10710994B2;BR112020018983A2","partial","no","Protocol family identified; compound preincubation is still ambiguous between 10 and 90 minutes."
-"S05","CHEMBL5728262","2021","CHEMBL5736402","patent","Oxadiazolones as transient receptor potential channel inhibitors","US10913742B2","verified","no","Source and assay protocol verified."
-"S06","CHEMBL3886359","2015","CHEMBL3887573","patent","Fused pyrimidine-dione derivatives as TRPA1 modulators","US9000159B2","verified","no","Source and assay protocol verified."
-"S07","CHEMBL5727588","2020","CHEMBL5734964","patent","Heterocyclic sulfonamide derivative and medicine containing same","US10584116B2","verified","no","Source and assay protocol verified."
-"S08","CHEMBL5316309","2023","CHEMBL5318377;CHEMBL5318380","article","Discovery of BAY-390, a Selective CNS Penetrant Chemical Probe as Transient Receptor Potential Ankyrin 1 (TRPA1) Antagonist","10.1021/acs.jmedchem.2c01830","verified","no","Source mapping verified; CHEMBL5318377 protocol verified."
-"S09","CHEMBL3297713","2014","CHEMBL3299551;CHEMBL3299560;CHEMBL3299561;CHEMBL3299550","article","Discovery, Optimization, and Biological Evaluation of 5-(2-(Trifluoromethyl)phenyl)indazoles as a Novel Class of Transient Receptor Potential A1 (TRPA1) Antagonists","10.1021/jm401986p","verified","yes","Source mapping verified; CHEMBL3299551 protocol verified. Main article and Supporting Information are present in sources/papers."
-"S10","CHEMBL5727953","2020","CHEMBL5735742","","","","recheck","no","Exact primary source has not been locked; current mapping is uncertain."
-"S11","CHEMBL2069204","2012","CHEMBL2071976;CHEMBL2071975","article","N-1-Alkyl-2-oxo-2-aryl amides as novel antagonists of the TRPA1 receptor","10.1016/j.bmcl.2012.07.032","partial","yes","Source and assay mapping verified; protocol details remain incomplete. Main article is present in sources/papers."
-"S12","CHEMBL3784976","2016","CHEMBL3789590;CHEMBL3791636","article","Optimization of a Novel Quinazolinone-Based Series of Transient Receptor Potential A1 (TRPA1) Antagonists Demonstrating Potent in Vivo Activity","10.1021/acs.jmedchem.6b00039","verified","yes","Source mapping verified; CHEMBL3789590 protocol verified. Main article is present in sources/papers."
-"S13","CHEMBL5729590","2023","CHEMBL5739043","","","","recheck","no","Exact primary source has not been locked. Candidate WO2022079091A1 was reviewed and not accepted."
-"S14","CHEMBL4033760","2017","CHEMBL4036813;CHEMBL4036824;CHEMBL4036817","article","Discovery of a Series of Indazole TRPA1 Antagonists","10.1021/acsmedchemlett.7b00140","verified","yes","Source mapping verified; CHEMBL4036813 protocol verified. Main article and Supporting Information are present in sources/papers."
-"S15","CHEMBL5728802","2021","CHEMBL5737489","","","","recheck","no","Exact primary source has not been locked; sensitivity-only assay."
-"S16","CHEMBL3297644","2014","CHEMBL3300585","article","Discovery of a 4-aryloxy-1H-pyrrolo[3,2-c]pyridine and a 1-aryloxyisoquinoline series of TRPA1 antagonists","10.1016/j.bmcl.2014.04.045","partial","yes","Source identified and article present in sources/papers; assay Methods were not found."
-"S17","CHEMBL1938315","2012","CHEMBL1944172","article","Tricyclic 3,4-dihydropyrimidine-2-thione derivatives as potent TRPA1 antagonists","10.1016/j.bmcl.2011.12.068","partial","yes","Source and assay mapping verified; supplementary assay procedures were unavailable, so protocol details remain incomplete. Main article is present in sources/papers."
-"","CHEMBL4043298","2018","CHEMBL4049011","","","","unmapped","no",""
-"","CHEMBL4190175","2016","CHEMBL4190659;CHEMBL4190624;CHEMBL4190621;CHEMBL4190628","","","","unmapped","no",""
-"","CHEMBL3886811","2016","CHEMBL3888736","","","","unmapped","no",""
-"","CHEMBL5729732","2023","CHEMBL5739380","","","","unmapped","no",""
-"","CHEMBL3352245","2014","CHEMBL3364861","","","","unmapped","no",""
-"","CHEMBL3217709","2012","CHEMBL3222891","","","","unmapped","no",""
-"","CHEMBL3639113","2015","CHEMBL3706106","","","","unmapped","no",""
-"","CHEMBL1944607","2012","CHEMBL1949457;CHEMBL1949463","","","","unmapped","no",""
-"","CHEMBL3751794","2016","CHEMBL3757221","","","","unmapped","no",""
-"","CHEMBL4346663","2019","CHEMBL4347276;CHEMBL4347272;CHEMBL4347295;CHEMBL4347296","","","","unmapped","no",""
-"","CHEMBL3886764","2016","CHEMBL3888572","","","","unmapped","no",""
-"","CHEMBL5576088","2024","CHEMBL5577374;CHEMBL5577360;CHEMBL5577372;CHEMBL5577382","","","","unmapped","no",""
-"","CHEMBL5357058","2024","CHEMBL5360087","","","","unmapped","no",""
-"","CHEMBL5725783","2017","CHEMBL5731467","","","","unmapped","no",""
-"","CHEMBL3352604","2014","CHEMBL3363074","","","","unmapped","no",""
-"","CHEMBL4834489","2021","CHEMBL4837096","","","","unmapped","no",""
-"","CHEMBL1155439","2010","CHEMBL1118499;CHEMBL1118226;CHEMBL1118227;CHEMBL1118500;CHEMBL1118501;CHEMBL1118734;CHEMBL1118233;CHEMBL1118234;CHEMBL1118735;CHEMBL1118736;CHEMBL1118737;CHEMBL1118738;CHEMBL1118739;CHEMBL1118740","","","","unmapped","no",""
-"","CHEMBL3856226","2016","CHEMBL3858029","","","","unmapped","no",""
-"","CHEMBL4825747","2021","CHEMBL4828020","","","","unmapped","no",""
-"","CHEMBL5096151","2021","CHEMBL5096638;CHEMBL5096639","","","","unmapped","no",""
-"","CHEMBL5120955","2022","CHEMBL5126028","","","","unmapped","no",""
-"","CHEMBL5137102","2022","CHEMBL5142855","","","","unmapped","no",""
-"","CHEMBL5620371","2023","CHEMBL5621665","","","","unmapped","no",""
-"","CHEMBL5726382","2017","CHEMBL5732578","","","","unmapped","no",""
-"","CHEMBL5728782","2021","CHEMBL5737447","","","","unmapped","no",""
-"","CHEMBL5705895","2012","CHEMBL5708945","","","","unmapped","no",""
-"","CHEMBL5678803","2011","CHEMBL5680872;CHEMBL5680929;CHEMBL5680930;CHEMBL5680880","","","","unmapped","no",""
-"","CHEMBL1153159","2010","CHEMBL1049520","","","","unmapped","no",""
-"","CHEMBL2417435","2013","CHEMBL2422134","","","","unmapped","no",""
-"","CHEMBL4020807","2017","CHEMBL4022626;CHEMBL4022611;CHEMBL4022625","","","","unmapped","no",""
-"","CHEMBL2321869","2013","CHEMBL2328091","","","","unmapped","no",""
-"","CHEMBL2429801","2013","CHEMBL2433975","","","","unmapped","no",""
-"","CHEMBL3751759","2016","CHEMBL3757748","","","","unmapped","no",""
-"","CHEMBL4507256","2021","CHEMBL4880071;CHEMBL4880072","","","","unmapped","no",""
-"","CHEMBL4507328","2021","CHEMBL4885651;CHEMBL4885657","","","","unmapped","no",""
-"","CHEMBL5210121","2023","CHEMBL5210282","","","","unmapped","no",""
-"","CHEMBL5210307","2023","CHEMBL5210580","","","","unmapped","no",""
-"","CHEMBL6103546","2025","CHEMBL6104158;CHEMBL6104159","","","","unmapped","no",""
+source_id,document_id,year,assay_ids,source_type,title,identifier,status,local_source,notes
+S01,CHEMBL5727829,2020,CHEMBL5735476;CHEMBL5735477,patent,Oxadiazole transient receptor potential channel inhibitors,US10711004B2,partial,no,Source family confirmed; exact assay-to-patent-column mapping remains unresolved.
+S02,CHEMBL5726658,2019,CHEMBL5733104,patent,Inhibiting the transient receptor potential A1 ion channel,US10221177B2,partial,no,Source verified; electrophysiology protocol is incomplete and the activation agonist remains not found.
+S03,CHEMBL5728946,2022,CHEMBL5737786,patent,,,recheck,no,It is necessary to determine whether CHEMBL5737786 comes from family US20190144428A1/US10597383B2 or from US11236046B2
+S04,CHEMBL5727828,2020,CHEMBL5735475;CHEMBL5735474,patent,Oxadiazole transient receptor potential channel inhibitors,US10710994B2;BR112020018983A2,partial,no,Protocol family identified; compound preincubation is still ambiguous between 10 and 90 minutes.
+S05,CHEMBL5728262,2021,CHEMBL5736402,patent,Oxadiazolones as transient receptor potential channel inhibitors,US10913742B2,verified,no,Source and assay protocol verified.
+S06,CHEMBL3886359,2015,CHEMBL3887573,patent,Fused pyrimidine-dione derivatives as TRPA1 modulators,US9000159B2,recheck,no,Source and assay protocol verified.
+S07,CHEMBL5727588,2020,CHEMBL5734964,patent,Heterocyclic sulfonamide derivative and medicine containing same,US10584116B2,verified,no,Source and assay protocol verified.
+S08,CHEMBL5316309,2023,CHEMBL5318377;CHEMBL5318380,article,"Discovery of BAY-390, a Selective CNS Penetrant Chemical Probe as Transient Receptor Potential Ankyrin 1 (TRPA1) Antagonist",10.1021/acs.jmedchem.2c01830,verified,no,Source mapping verified; CHEMBL5318377 protocol verified.
+S09,CHEMBL3297713,2014,CHEMBL3299551;CHEMBL3299560;CHEMBL3299561;CHEMBL3299550,article,"Discovery, Optimization, and Biological Evaluation of 5-(2-(Trifluoromethyl)phenyl)indazoles as a Novel Class of Transient Receptor Potential A1 (TRPA1) Antagonists",10.1021/jm401986p,verified,yes,Source mapping verified; CHEMBL3299551 protocol verified. Main article and Supporting Information are present in sources/papers.
+S10,CHEMBL5727953,2020,CHEMBL5735742,patent,,,recheck,no,ChEMBL/BindingDB patent-derived record (aidx 9375_1_pol_7258); exact patent number and title are not yet proven.
+S11,CHEMBL2069204,2012,CHEMBL2071976;CHEMBL2071975,article,N-1-Alkyl-2-oxo-2-aryl amides as novel antagonists of the TRPA1 receptor,10.1016/j.bmcl.2012.07.032,partial,yes,Source and assay mapping verified; protocol details remain incomplete. Main article is present in sources/papers.
+S12,CHEMBL3784976,2016,CHEMBL3789590;CHEMBL3791636,article,Optimization of a Novel Quinazolinone-Based Series of Transient Receptor Potential A1 (TRPA1) Antagonists Demonstrating Potent in Vivo Activity,10.1021/acs.jmedchem.6b00039,verified,yes,Source mapping verified; CHEMBL3789590 protocol verified. Main article is present in sources/papers.
+S13,CHEMBL5729590,2023,CHEMBL5739043,patent,,,recheck,no,ChEMBL/BindingDB patent-derived record (aidx 11132_1_pol_7258); exact patent number and title are not yet proven.
+S14,CHEMBL4033760,2017,CHEMBL4036813;CHEMBL4036824;CHEMBL4036817,article,Discovery of a Series of Indazole TRPA1 Antagonists,10.1021/acsmedchemlett.7b00140,verified,yes,Source mapping verified; CHEMBL4036813 protocol verified. Main article and Supporting Information are present in sources/papers.
+S15,CHEMBL5728802,2021,CHEMBL5737489,patent,,,recheck,no,ChEMBL/BindingDB patent-derived record (aidx 10268_1_pol_7258); exact patent number and title are not yet proven.
+S16,CHEMBL3297644,2014,CHEMBL3300585,article,"Discovery of a 4-aryloxy-1H-pyrrolo[3,2-c]pyridine and a 1-aryloxyisoquinoline series of TRPA1 antagonists",10.1016/j.bmcl.2014.04.045,partial,yes,Source identified and article present in sources/papers; assay Methods were not found.
+S17,CHEMBL1938315,2012,CHEMBL1944172,article,"Tricyclic 3,4-dihydropyrimidine-2-thione derivatives as potent TRPA1 antagonists",10.1016/j.bmcl.2011.12.068,partial,yes,"Source and assay mapping verified; supplementary assay procedures were unavailable, so protocol details remain incomplete. Main article is present in sources/papers."
+S18,CHEMBL4043298,2018,CHEMBL4049011,article,"Discovery of a Potent (4R,5S)-4-Fluoro-5-methylproline Sulfonamide TRPA1 Antagonist and Its Meso Diastereomer as a Transient Receptor Potential Ankyrin 1 PET Imaging Agent",10.1021/acs.jmedchem.8b00117;PMID:29589460,verified,no,ChEMBL document-to-article mapping is supported by bibliographic metadata and the compound/assay context; full protocol still requires the article or Supporting Information.
+S19,CHEMBL4190175,2016,CHEMBL4190659;CHEMBL4190624;CHEMBL4190621;CHEMBL4190628,article,The discovery of a potent series of carboxamide TRPA1 antagonists,10.1039/C6MD00387G,verified,no,Source mapping is supported by the full-length/oS5-chimera PatchXpress assay context and article metadata; obtain full text for protocol-level curation.
+S20,CHEMBL3886811,2016,CHEMBL3888736,patent,,,recheck,no,ChEMBL/BindingDB patent-derived record (aidx 8221_1_pol_7258); exact patent number and title are unresolved.
+S21,CHEMBL5729732,2023,CHEMBL5739380,patent,,,recheck,no,ChEMBL/BindingDB patent-derived record (aidx 11276_1_pol_7258); exact patent number and title are unresolved.
+S22,CHEMBL3352245,2014,CHEMBL3364861,article,Discovery of a series of aryl-N-(3-(alkylamino)-5-(trifluoromethyl)phenyl)benzamides as TRPA1 antagonists,10.1016/j.bmcl.2014.05.013;PMID:24880903,verified,no,ChEMBL document-to-article mapping is supported by title/DOI and the HEK293-T-REx Fluo-4NW assay/compound series.
+S23,CHEMBL3217709,2012,CHEMBL3222891,literature,,,unresolved,no,ChEMBL literature record (src_id=1); exact article/review title and identifier were not proven.
+S24,CHEMBL3639113,2015,CHEMBL3706106,patent,,,recheck,no,ChEMBL/BindingDB patent-derived record (aidx 6948_1_pol_7258); exact patent number and title are unresolved.
+S25,CHEMBL1944607,2012,CHEMBL1949457;CHEMBL1949463,article,"7-Substituted-pyrrolo[3,2-d]pyrimidine-2,4-dione derivatives as antagonists of the transient receptor potential ankyrin 1 (TRPA1) channel: A promising approach for treating pain and inflammation",10.1016/j.bmc.2012.01.020;PMID:22325155,verified,no,ChEMBL document-to-article mapping is supported by title/DOI and the IMR-90 acrolein/CHO calcium assay context.
+S26,CHEMBL3751794,2016,CHEMBL3757221,article,"  
+?-Aryl pyrrolidine sulfonamides as TRPA1 antagonists",10.1016/j.bmcl.2015.11.088;PMID:26706172,verified,no,ChEMBL document-to-article mapping is supported by title/DOI and compound context.
+S27,CHEMBL4346663,2019,CHEMBL4347276;CHEMBL4347272;CHEMBL4347295;CHEMBL4347296,review,N-Cinnamoylanthranilates as human TRPA1 modulators: Structure-activity relationships and channel binding sites,10.1016/j.ejmech.2019.02.074;PMID:30878828,partial,no,"The ChEMBL document maps to this review, but the review is a secondary source. Original cited assay reports must be traced before protocol-level verification."
+S28,CHEMBL3886764,2016,CHEMBL3888572,patent,,,recheck,no,ChEMBL/BindingDB patent-derived record (aidx 8152_1_pol_7258); exact patent number and title are unresolved.
+S29,CHEMBL5576088,2024,CHEMBL5577374;CHEMBL5577360;CHEMBL5577372;CHEMBL5577382,article,"Skin- and airway-deliverable TRPA1 inhibitor compounds for the treatment of pruritus, inflammatory skin disease, and asthma",10.1016/j.bmc.2024.117812;PMID:38941887,verified,no,ChEMBL document-to-article mapping is supported by title/DOI and the HEK293 AITC assay set.
+S30,CHEMBL5357058,2024,CHEMBL5360087,article,"Norterpene Cyclic Peroxides from the Marine Sponge Diacarnus spinipoculum, Inhibitors of Transient Receptor Potential Ankyrin 1",10.1021/acs.jnatprod.3c01104;PMID:38320400,verified,no,ChEMBL document-to-article mapping is supported by title/DOI and the AITC-FLIPR assay/compound context.
+S31,CHEMBL5725783,2017,CHEMBL5731467,patent,,,recheck,no,ChEMBL/BindingDB patent-derived record (aidx 793_1_pol_7258); exact patent number and title are unresolved.
+S32,CHEMBL3352604,2014,CHEMBL3363074,article,Development of novel azabenzofuran TRPA1 antagonists as in vivo tools,10.1016/j.bmcl.2014.05.069;PMID:24953819,verified,no,ChEMBL document-to-article mapping is supported by title/DOI and the AITC-induced 45Ca uptake assay.
+S33,CHEMBL4834489,2021,CHEMBL4837096,literature,,,unresolved,no,ChEMBL literature record (src_id=1); exact article/review title and identifier were not proven.
+S34,CHEMBL1155439,2010,CHEMBL1118499;CHEMBL1118226;CHEMBL1118227;CHEMBL1118500;CHEMBL1118501;CHEMBL1118734;CHEMBL1118233;CHEMBL1118234;CHEMBL1118735;CHEMBL1118736;CHEMBL1118737;CHEMBL1118738;CHEMBL1118739;CHEMBL1118740,article,Transient Receptor Potential Ankyrin 1 (TRPA1) Channel as Emerging Target for Novel Analgesics and Anti-Inflammatory Agents,10.1021/jm100062h;PMID:20356305,verified,no,One article is the common source for all 14 assays. Source mapping is verified; individual assay methods should be checked against the main text and Supporting Information.
+S35,CHEMBL3856226,2016,CHEMBL3858029,literature,,,unresolved,no,ChEMBL literature record (src_id=1); exact article/review title and identifier were not proven.
+S36,CHEMBL4825747,2021,CHEMBL4828020,literature,,,unresolved,no,ChEMBL literature record (src_id=1); exact article/review title and identifier were not proven.
+S37,CHEMBL5096151,2021,CHEMBL5096638;CHEMBL5096639,review,Phytocannabinoid Pharmacology: Medicinal Properties of Cannabis sativa Constituents Aside from the Big Two,10.1021/acs.jnatprod.0c00965;PMID:33356248,partial,no,"The ChEMBL document maps to this review, which is secondary and does not by itself verify the original TRPA1 desensitization protocols."
+S38,CHEMBL5120955,2022,CHEMBL5126028,literature,,,unresolved,no,ChEMBL literature record (src_id=1); exact article/review title and identifier were not proven.
+S39,CHEMBL5137102,2022,CHEMBL5142855,literature,,,unresolved,no,ChEMBL literature record (src_id=1); exact article/review title and identifier were not proven.
+S40,CHEMBL5620371,2023,CHEMBL5621665,literature,,,unresolved,no,ChEMBL literature record (src_id=1); exact article/review title and identifier were not proven.
+S41,CHEMBL5726382,2017,CHEMBL5732578,patent,,,recheck,no,ChEMBL/BindingDB patent-derived record (aidx 1744_1_pol_7258); exact patent number and title are unresolved.
+S42,CHEMBL5728782,2021,CHEMBL5737447,patent,,,recheck,no,ChEMBL/BindingDB patent-derived record (aidx 10248_1_pol_7258); exact patent number and title are unresolved.
+S43,CHEMBL5705895,2012,CHEMBL5708945,article,"Species comparison and pharmacological characterization of human, monkey, rat, and mouse TRPA1 channels",10.1124/jpet.111.189902;PMID:22319196,verified,no,ChEMBL document-to-article mapping is supported by title/DOI and the human TRPA1 mustard-oil FLIPR assay context.
+S44,CHEMBL5678803,2011,CHEMBL5680872;CHEMBL5680929;CHEMBL5680930;CHEMBL5680880,database submission,,,recheck,no,ChEMBL imported database source (src_id=72); exact upstream database record/article was not proven.
+S45,CHEMBL1153159,2010,CHEMBL1049520,article,Oxime derivatives related to AP18: agonists and antagonists of the TRPA1 receptor,10.1016/j.bmcl.2009.10.113;PMID:19945872,verified,no,ChEMBL document-to-article mapping is supported by title/DOI and the AP18-related oxime/45Ca assay context.
+S46,CHEMBL2417435,2013,CHEMBL2422134,article,"The discovery of potent blockers of the canonical transient receptor channels, TRPC3 and TRPC6, based on an anilino-thiazole pharmacophore",10.1016/j.bmcl.2013.06.047;PMID:23886683,verified,no,The TRPA1 value is a selectivity/counterscreen reported in this TRPC3/TRPC6 article; source mapping is verified.
+S47,CHEMBL4020807,2017,CHEMBL4022626;CHEMBL4022611;CHEMBL4022625,article,Synthesis of resveratrol derivatives as new analgesic drugs through desensitization of the TRPA1 receptor,10.1016/j.bmcl.2017.05.025;PMID:28579306,verified,no,ChEMBL document-to-article mapping is supported by title/DOI and the AITC calcium/patch-clamp assay context.
+S48,CHEMBL2321869,2013,CHEMBL2328091,review,Ion channels as therapeutic targets: a drug discovery perspective,10.1021/jm3011433;PMID:23121096,partial,no,The ChEMBL document maps to a review. The original source of the 10-minute HEK293-FLIPR value must be traced before protocol-level verification.
+S49,CHEMBL2429801,2013,CHEMBL2433975,article,3-Ylidenephthalides as a new class of transient receptor potential channel TRPA1 and TRPM8 modulators,10.1016/j.bmcl.2013.08.039;PMID:23993334,verified,no,ChEMBL document-to-article mapping is supported by title/DOI and the mustard-oil-activated current assay context.
+S50,CHEMBL3751759,2016,CHEMBL3757748,literature,,,unresolved,no,ChEMBL literature record (src_id=1); exact article/review title and identifier were not proven.
+S51,CHEMBL4507256,2021,CHEMBL4880071;CHEMBL4880072,database submission ,Data for DCP probe A-07 ,10.1124/jpet.110.178640;PMID:21402443,verified,no,The DCP assay record explicitly cites PMID 21402443; source mapping is verified.
+S52,CHEMBL4507328,2021,CHEMBL4885651;CHEMBL4885657,database submission,Data for DCP probe BAY-390 ,CHEMBL4514203,verified,no,ChEMBL DCP database submission; no separate journal article was established for this record.
+S53,CHEMBL5210121,2023,CHEMBL5210282,database submission,EUbOPEN TRPA1 electrophysiology assay record EUB0000308b,EUB0000308b,verified,no,EUbOPEN database submission; assay record describes electrophysiological inhibition of AITC-evoked currents.
+S54,CHEMBL5210307,2023,CHEMBL5210580,database submission,EUbOPEN TRPA1 FLIPR assay record EUB0000308b,EUB0000308b,verified,no,EUbOPEN database submission; assay record describes a FLIPR Ca2+ assay activated by 30 µM AITC.
+S55,CHEMBL6103546,2025,CHEMBL6104158;CHEMBL6104159,literature,,,unresolved,no,ChEMBL literature record (src_id=1); exact 2025 article/review title and identifier were not proven.
