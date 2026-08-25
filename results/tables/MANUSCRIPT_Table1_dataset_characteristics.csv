@@ -1,0 +1,17 @@
+Characteristic,Value
+ChEMBL release,37
+Target,"CHEMBL6007, human TRPA1"
+Endpoint,Exact IC50; pChEMBL available
+Activity records,2196
+Standardized unique compounds,1645
+Unique Bemis–Murcko scaffolds,544
+Assays,97
+ChEMBL documents,55
+Document years,2010–2025
+Compounds with one measurement,1196
+Compounds with ≥2 measurements,449
+Compounds measured in ≥2 assays,393
+Compounds represented in ≥2 documents,52
+Median aggregated pIC50,7.32
+Interquartile range of aggregated pIC50,6.63–7.88
+Range of aggregated pIC50,4.00–9.31
