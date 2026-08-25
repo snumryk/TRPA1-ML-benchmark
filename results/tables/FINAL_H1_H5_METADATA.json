@@ -1,0 +1,33 @@
+{
+  "n_compounds": 1645,
+  "n_records": 2196,
+  "n_multiassay": 393,
+  "n_multidocument": 52,
+  "bootstrap_iterations": 1500,
+  "files": {
+    "FINAL_H2_variability_vs_error.csv": {
+      "size": 2019,
+      "sha256": "37ac26b5c1c1a58765aa97c7aa39121699a74d7eeaa81322eed3f3d43d8d0696"
+    },
+    "FINAL_H3_mihai_replication_summary.csv": {
+      "size": 366,
+      "sha256": "773458e977e9083569cc5aced77dd44892764347967507e23cea12d5a13415bc"
+    },
+    "FINAL_H4_similarity_vs_error.csv": {
+      "size": 332,
+      "sha256": "b9ed1f9dd0502ef9c6723a9cb516f893f6843fd11644d9270217c2a07c8055e1"
+    },
+    "FINAL_H5_random_vs_scaffold.csv": {
+      "size": 1784,
+      "sha256": "8e0b6baa75b36bcf309275ef04b75e169a2953d319b5f1cf6467872d617b0621"
+    },
+    "FINAL_H1_H5_CHECKED_REPORT.md": {
+      "size": 971,
+      "sha256": "bb8b3e6f713e5f2b86dd202d120f03ce332a4853b31db836480a7dfe388fa406"
+    },
+    "FINAL_H5_random_vs_scaffold_both_models.png": {
+      "size": 109006,
+      "sha256": "e1cab21dd242e28ac82f0efd6a99e0e93ca1dd8c0bb659f9d201fc639fe114ba"
+    }
+  }
+}

@@ -1,0 +1,7 @@
+model,metric,value,task
+RF,Accuracy,0.9864,ligand_vs_random_decoy_classification
+RF,CV AUC,0.9982,ligand_vs_random_decoy_classification
+SVM,Accuracy,0.9864,ligand_vs_random_decoy_classification
+SVM,CV AUC,0.9968,ligand_vs_random_decoy_classification
+FFNN,Accuracy,0.9909,ligand_vs_random_decoy_classification
+FFNN,CV AUC,0.9983,ligand_vs_random_decoy_classification
