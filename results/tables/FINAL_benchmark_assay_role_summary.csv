@@ -1,0 +1,4 @@
+dataset_role,n_assays,n_records,n_unique_compounds_with_role,n_compounds_only_this_role,n_compounds_also_in_other_roles
+primary,76,1953,1444,1411,33
+sensitivity,9,216,213,193,20
+excluded,12,27,22,8,14
