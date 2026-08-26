@@ -1,9 +1,33 @@
-# FINAL CHECK — approved H1–H5
+# Перевірка затверджених гіпотез H1–H5
 
-- **H1 supported:** scaffold-CV R² is about 0.57, clearly above the mean baseline near zero.
-- **H2 supported, but weak across assays:** rho 0.127 (RF) and 0.164 (XGB), n=393. Across different documents the association is stronger — rho 0.347 and 0.449 — but n=52 and the subset is selected.
-- **H3 supported by the existing replication:** accuracy 98.64–99.09%, CV AUC 0.9968–0.9983 for ligand versus random decoy classification.
-- **H4 supported:** nearest-training-compound similarity correlates negatively with error, rho -0.177 (RF) and -0.177 (XGB).
-- **H5 supported:** RF R² 0.572 scaffold vs 0.640 random; XGB 0.567 vs 0.638.
+## H1
 
-**Interpretation:** random splitting is the strongest source of optimism; chemical distance has a smaller but reproducible effect; disagreement among published potency values explains only a modest part of residual error. Do not claim a universal prediction ceiling or causal assay effect.
+Підтримана: RF/XGB з Morgan fingerprints прогнозують агрегований pIC50 для нових хімічних каркасів краще за передбачення середнього значення.
+
+## H2
+
+Підтримана як слабка асоціація.
+
+- Різні assays: ρ = 0.127 для RF і 0.164 для XGB; n = 393.
+- Різні документи: ρ = 0.347 для RF і 0.449 для XGB; n = 52.
+- Міждокументний результат сильніший, але підвибірка мала й невипадкова.
+
+## H3
+
+Підтримана раніше виконаним повторенням Mihai et al.: ligand-versus-random-decoy classification дає майже ідеальні метрики, але не є реалістичною перевіркою прогнозування pIC50 нових каркасів.
+
+## H4
+
+Підтримана: зі зменшенням схожості до найближчої навчальної молекули похибка зростає (ρ = -0.177 для RF; -0.177 для XGB).
+
+## H5
+
+Підтримана: random split дає оптимістичніші метрики.
+
+- RF: R² 0.572 при scaffold split проти 0.640 при random split.
+- XGB: R² 0.567 проти 0.638.
+- У random split приблизно 79.0% тестових молекул мають каркас, уже представлений у train.
+
+## Підсумок
+
+Найсильніший додатковий результат — вплив способу поділу даних. Хімічна віддаленість має помірний вплив. Розбіжність опублікованих значень пов’язана з похибкою слабко на рівні assays і сильніше лише в малій міждокументній підвибірці. Ці результати не доводять універсальної межі прогнозованості або причинного впливу конкретного протоколу.

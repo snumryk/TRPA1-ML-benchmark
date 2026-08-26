@@ -1,33 +1,86 @@
 {
-  "n_compounds": 1645,
-  "n_records": 2196,
-  "n_multiassay": 393,
-  "n_multidocument": 52,
+  "analysis": "Approved H1-H5 TRPA1 analyses",
+  "generated_by": "scripts/analyze_h1_h5.py",
   "bootstrap_iterations": 1500,
-  "files": {
-    "FINAL_H2_variability_vs_error.csv": {
-      "size": 2019,
-      "sha256": "37ac26b5c1c1a58765aa97c7aa39121699a74d7eeaa81322eed3f3d43d8d0696"
+  "counts": {
+    "compounds": 1645,
+    "raw_records": 2196,
+    "multiassay_compounds": 393,
+    "multidocument_compounds": 52
+  },
+  "random_split": {
+    "seeds": [
+      1000,
+      1001,
+      1002
+    ],
+    "folds": 5,
+    "mean_test_scaffold_overlap": 0.790273556231003
+  },
+  "inputs": {
+    "data\\processed\\trpa1_primary_dataset.csv": {
+      "bytes": 325459,
+      "sha256": "a904fd7d3522aed2c30edd5cd5c5efb5ca5f796353295ecc92390cf1d4dd8597"
     },
-    "FINAL_H3_mihai_replication_summary.csv": {
-      "size": 366,
+    "data\\raw\\trpa1_current_api_raw.csv": {
+      "bytes": 547142,
+      "sha256": "6a98bcfe1f9b531e6a1ed9edc21d5d2fd4d13371651965a70a966c86ff05eb2a"
+    },
+    "results\\tables\\grid_final_oof_20260801-152155.csv": {
+      "bytes": 4006753,
+      "sha256": "2b0bcfb4fa8c292312ebd26fe0593fdc08817a98e11e1f2d617f758f4d649331"
+    },
+    "results\\tables\\FINAL_H3_mihai_replication_summary.csv": {
+      "bytes": 366,
+      "sha256": "773458e977e9083569cc5aced77dd44892764347967507e23cea12d5a13415bc"
+    }
+  },
+  "outputs": {
+    "results\\tables\\FINAL_H1_scaffold_performance.csv": {
+      "bytes": 911,
+      "sha256": "a791cfe7f54a2affa94c07f4ebf3036e913f1e41ec72b5d28946a82ba46aa2bc"
+    },
+    "results\\tables\\FINAL_H2_variability_vs_error.csv": {
+      "bytes": 2835,
+      "sha256": "59b5d379b042cc61de792527c20f4f817cdc2857f248497b48ed9b5f693445f8"
+    },
+    "results\\tables\\FINAL_H3_mihai_replication_summary.csv": {
+      "bytes": 366,
       "sha256": "773458e977e9083569cc5aced77dd44892764347967507e23cea12d5a13415bc"
     },
-    "FINAL_H4_similarity_vs_error.csv": {
-      "size": 332,
-      "sha256": "b9ed1f9dd0502ef9c6723a9cb516f893f6843fd11644d9270217c2a07c8055e1"
+    "results\\tables\\FINAL_H4_similarity_vs_error.csv": {
+      "bytes": 334,
+      "sha256": "dd0bbf045a6e21320b80a83f52fdcfe5d5ed1e4a75591c9aed0d25cbca56e709"
     },
-    "FINAL_H5_random_vs_scaffold.csv": {
-      "size": 1784,
-      "sha256": "8e0b6baa75b36bcf309275ef04b75e169a2953d319b5f1cf6467872d617b0621"
+    "results\\tables\\FINAL_H5_random_vs_scaffold.csv": {
+      "bytes": 1801,
+      "sha256": "56dea50b073735739213b705564f7c4c6b6d5b44549ef0b27d8552eb75acb836"
     },
-    "FINAL_H1_H5_CHECKED_REPORT.md": {
-      "size": 971,
-      "sha256": "bb8b3e6f713e5f2b86dd202d120f03ce332a4853b31db836480a7dfe388fa406"
+    "results\\tables\\FINAL_H5_random_oof_morgan.csv": {
+      "bytes": 1356049,
+      "sha256": "ec6a292634b9c9f6d9014425fb695becf0f4302172e078465215c791732ba014"
     },
-    "FINAL_H5_random_vs_scaffold_both_models.png": {
-      "size": 109006,
-      "sha256": "e1cab21dd242e28ac82f0efd6a99e0e93ca1dd8c0bb659f9d201fc639fe114ba"
+    "results\\figures\\FINAL_H5_random_vs_scaffold_both_models.png": {
+      "bytes": 105242,
+      "sha256": "8dc66dbced87743dec02b0b6f8bbf7a2a30bb6a819aa81f06acdfa697abcf587"
+    },
+    "docs\\FINAL_H1_H5_CHECKED_REPORT.md": {
+      "bytes": 2231,
+      "sha256": "2ee211af7d41ad6a44d67a03b4c609cdc54810e92f95d266c7a2d256d4163d63"
     }
-  }
+  },
+  "versions": {
+    "python": "3.13.13",
+    "numpy": "2.4.6",
+    "pandas": "3.0.3",
+    "scipy": "1.17.1",
+    "scikit_learn": "1.8.0",
+    "xgboost": "3.2.0",
+    "rdkit": "2026.03.2"
+  },
+  "notes": [
+    "H3 is read from the frozen replication summary and is not rerun here.",
+    "IDs are used only for joins/grouping, never as predictive features.",
+    "No new ChEMBL extraction is performed."
+  ]
 }
