@@ -6,17 +6,27 @@
 
 Проведено ретроспективне обчислювальне дослідження, у якому за молекулярною структурою прогнозували агреговане значення інгібувальної активності сполук щодо TRPA1 людини. Основною задачею була регресія для сполук із хімічними каркасами, відсутніми в навчальній частині даних. Окремо оцінювали зв’язок похибки прогнозу з розбіжністю опублікованих значень, хімічною віддаленістю тестової сполуки від навчальної вибірки та способом поділу даних.
 
-[PROJECT SOURCE: STATUS.md; docs/paper_plan.md; results/tables/grid_final_metadata_20260801-152155.json; scripts/analyze_hypotesis.py]
+[PROJECT SOURCE: STATUS.md; docs/paper_plan.md; results/tables/grid_final_metadata_20260801-152155.json; scripts/analyze_h1_h5.py]
 
 ## Джерело даних і критерії відбору
 
-Дані отримано з бази ChEMBL версії 37, дата релізу якої у метаданих проєкту зафіксована як 1 травня 2026 року. Відбирали записи для мішені CHEMBL6007 (TRPA1 людини) з типом показника IC50, точною рівністю standard_relation = "=" та наявним значенням pChEMBL. Заморожена таблиця рівня окремих вимірювань містила 2196 записів; усі збережені стандартизовані значення IC50 були подані в нмоль/л. Документи, з яких походили записи, охоплювали 2010–2025 роки.
+Дані отримано з бази ChEMBL версії 37, дата релізу якої у метаданих проєкту зафіксована як 1 травня 2026 року. Відбирали записи для мішені CHEMBL6007 (TRPA1 людини) з типом показника IC50, точною рівністю `standard_relation = "="` та наявним значенням pChEMBL. Заморожена таблиця рівня окремих вимірювань містила 2196 записів; усі збережені стандартизовані значення IC50 були подані в нмоль/л. Документи, з яких походили записи, охоплювали 2010–2025 роки.
 
 [PROJECT SOURCE: data/raw/trpa1_current_api_metadata.json; data/raw/trpa1_current_api_raw.csv] [SOURCE NEEDED: первинна публікація або офіційний опис ChEMBL і визначення поля pChEMBL]
 
-Після стандартизації та об’єднання записів сформовано набір із 1645 унікальних сполук, 97 біологічних тестів і 55 документів ChEMBL. Для кожної сполуки у головній таблиці збережено стандартизований SMILES, InChIKey, медіану, мінімум, максимум і стандартне відхилення pChEMBL, число вимірювань та хімічний каркас Bemis–Murcko. У наборі було 544 унікальні хімічні каркаси.
+Перехід від 2196 записів до 1645 сполук був агрегацією, а не вилученням біологічних тестів. Після стандартизації структури записи з однаковим InChIKey об’єднували в один molecule-level рядок, а цільову змінну визначали як медіану збережених pChEMBL. Отримана таблиця містила 1645 унікальних сполук, що походили з 97 assays і 55 документів ChEMBL. Для кожної сполуки збережено стандартизований SMILES, InChIKey, медіану, мінімум, максимум і стандартне відхилення pChEMBL, число вимірювань та хімічний каркас Bemis–Murcko. У наборі було 544 унікальні хімічні каркаси.
 
-[PROJECT SOURCE: data/processed/trpa1_primary_dataset.csv; data/assays/assay_table.csv; sources/source_registry.csv; results/tables/grid_final_metadata_20260801-152155.json] [SOURCE NEEDED: оригінальне джерело для визначення каркасів Bemis–Murcko]
+[PROJECT SOURCE: data/raw/trpa1_current_api_raw.csv; data/processed/trpa1_primary_dataset.csv; data/assays/assay_table.csv; sources/source_registry.csv; results/tables/grid_final_metadata_20260801-152155.json] [SOURCE NEEDED: оригінальне джерело для визначення каркасів Bemis–Murcko]
+
+### Пізніший аудит походження assay-записів
+
+Після завершення основного benchmark усі 97 assays окремо переглянули й класифікували як `primary` (76 assays), `sensitivity` (9 assays) або `excluded` (12 assays). При зіставленні цієї класифікації з 2196 записами початкового benchmark 1953 записи належали до `primary`, 216 — до `sensitivity`, а 27 записів походили з 12 assays, пізніше позначених як `excluded`. Ці 27 записів стосувалися 22 сполук; для 8 сполук вони були єдиним джерелом активності, тоді як для 14 сполук у наборі також існували записи з `primary` або `sensitivity` assays.
+
+[PROJECT SOURCE: data/raw/trpa1_current_api_raw.csv; data/assays/assay_table.csv; results/tables/FINAL_benchmark_assay_role_summary.csv; results/tables/FINAL_assay_role_record_audit.csv]
+
+Оскільки цей аудит було виконано після формування molecule-level набору й завершення основної сітки моделей, результати benchmark та аналізів H1–H5 відображають повний набір 2196 записів / 1645 сполук і не були ретроспективно перераховані після виключення зазначених 27 записів. Аудит використовували для кількісної оцінки обмежень набору, але не як критерій включення до вже виконаного benchmark.
+
+[PROJECT SOURCE: data/processed/trpa1_primary_dataset.csv; results/tables/grid_final_metadata_20260801-152155.json; data/assays/assay_table.csv; STATUS.md]
 
 ## Стандартизація структур і формування цільової змінної
 
@@ -38,13 +48,17 @@
 
 [PROJECT SOURCE: scripts/Grid_Benchmark.py; scripts/chemberta_benchmark.py] [SOURCE NEEDED: офіційна цитата RDKit і, за потреби, першоджерела окремих дескрипторів]
 
-Третім представленням були 384-вимірні вектори ChemBERTa-CLS, отримані замороженою попередньо навченою моделлю DeepChem/ChemBERTa-77M-MTR із першого токена послідовності; для токенізації SMILES застосовували обрізання до максимальної довжини 512 токенів. Параметри цієї моделі не донавчали на наборі TRPA1 у межах основної сітки порівняння.
+Третім представленням були 384-вимірні вектори ChemBERTa-CLS, отримані замороженою попередньо навченою моделлю DeepChem/ChemBERTa-77M-MTR із першого токена послідовності; для токенізації SMILES застосовували обрізання до максимальної довжини 128 токенів. Параметри цієї моделі не донавчали на наборі TRPA1 у межах основної сітки порівняння.
 
-[PROJECT SOURCE: scripts/chemberta_benchmark.py; scripts/Grid_Benchmark.py; results/tables/grid_final_metadata_20260801-152155.json] [SOURCE NEEDED: перевірена первинна публікація для використаної версії ChemBERTa]
+[PROJECT SOURCE: scripts/GroupKFold_CV.ipynb; scripts/chemberta_benchmark.py; scripts/Grid_Benchmark.py; results/tables/grid_final_metadata_20260801-152155.json] [SOURCE NEEDED: перевірена первинна публікація для використаної версії ChemBERTa]
 
-Четвертим представленням були 768-вимірні вектори MolFormer-Mean, сформовані усередненням прихованих представлень попередньо навченої моделі. У замороженому benchmark-файлі збережено контрольну суму NPZ із цими векторами, однак точний ідентифікатор і ревізію вихідної моделі MolFormer ще потрібно підтвердити за середовищем, у якому виконували генерацію векторів.
+Четвертим представленням були 768-вимірні вектори MolFormer-Mean, сформовані усередненням прихованих представлень попередньо навченої моделі `ibm/MoLFormer-XL-both-10pct`, revision `7b12d946c181a37f6012b9dc3b002275de070314`, у середовищі `transformers = 4.44.2`; для токенізації SMILES застосовували максимальну довжину 202 токени. Параметри моделі не донавчали на наборі TRPA1 у межах основної сітки порівняння.
 
-[PROJECT SOURCE: scripts/Grid_Benchmark.py; results/tables/grid_final_metadata_20260801-152155.json; docs/methods_fact_sheet.md] [SOURCE NEEDED: точна назва й ревізія моделі MolFormer, використаної для embeddings_all.npz] [SOURCE NEEDED: перевірена первинна публікація MolFormer]
+[PROJECT SOURCE: scripts/GroupKFold_CV.ipynb; results/tables/grid_final_metadata_20260801-152155.json; docs/methods_fact_sheet.md] [SOURCE NEEDED: перевірена первинна публікація MolFormer]
+
+Для додаткових аналізів розбіжності значень, хімічної віддаленості та способу поділу даних використовували Morgan fingerprints у поєднанні з Random Forest і XGBoost. Morgan обрали як спільне представлення для обох алгоритмів, оскільки його scaffold-CV якість була близькою до найкращих комбінацій повної сітки, а аналіз хімічної віддаленості безпосередньо ґрунтувався на Tanimoto similarity між Morgan fingerprints.
+
+[PROJECT SOURCE: results/tables/grid_final_results_20260801-152155.csv; results/tables/FINAL_H1_scaffold_performance.csv; scripts/analyze_h1_h5.py]
 
 ## Регресійні алгоритми
 
@@ -76,27 +90,29 @@
 
 Основними показниками якості були середньоквадратична похибка (RMSE), коефіцієнт детермінації R² та ранговий коефіцієнт кореляції Спірмена. Середню абсолютну похибку (MAE) додатково використовували у порівнянні випадкового поділу з поділом за каркасами.
 
-[PROJECT SOURCE: scripts/Grid_Benchmark.py; scripts/analyze_hypotesis.py; results/tables/grid_final_results_20260801-152155.csv; results/tables/FINAL_H5_random_vs_scaffold.csv] [SOURCE NEEDED: за вимогами журналу визначити, чи потрібні окремі стандартні статистичні посилання для RMSE, R², MAE та кореляції Спірмена]
+[PROJECT SOURCE: scripts/Grid_Benchmark.py; scripts/analyze_h1_h5.py; results/tables/grid_final_results_20260801-152155.csv; results/tables/FINAL_H5_random_vs_scaffold.csv] [SOURCE NEEDED: за вимогами журналу визначити, чи потрібні окремі стандартні статистичні посилання для RMSE, R², MAE та кореляції Спірмена]
 
 ## Аналіз розбіжності опублікованих значень
 
 Щоб технічні дублікати одного тесту не вважали незалежними вимірюваннями, записи спочатку об’єднували медіаною всередині кожної пари «сполука × assay». Розбіжність між тестами оцінювали лише для 393 сполук, представлених щонайменше у двох різних assays.
 
-[PROJECT SOURCE: scripts/analyze_hypotesis.py; results/tables/FINAL_H2_variability_vs_error.csv; results/tables/FINAL_H1_H5_METADATA.json]
+[PROJECT SOURCE: scripts/analyze_h1_h5.py; results/tables/FINAL_H2_variability_vs_error.csv; results/tables/FINAL_H1_H5_METADATA.json]
 
 У суворішому міждокументному аналізі записи спочатку об’єднували медіаною всередині кожної пари «сполука × документ», після чого розбіжність оцінювали для 52 сполук, наявних щонайменше у двох різних документах.
 
-[PROJECT SOURCE: scripts/analyze_hypotesis.py; results/tables/FINAL_H2_variability_vs_error.csv; results/tables/FINAL_H1_H5_METADATA.json]
+[PROJECT SOURCE: scripts/analyze_h1_h5.py; results/tables/FINAL_H2_variability_vs_error.csv; results/tables/FINAL_H1_H5_METADATA.json]
 
 Основним показником розбіжності був розмах pIC50 між агрегованими значеннями. Як додаткові показники обчислювали вибіркове стандартне відхилення, медіанне абсолютне відхилення та медіану всіх попарних абсолютних різниць. Для кожної моделі абсолютну OOF-похибку сполуки усереднювали між трьома варіантами scaffold-розподілу, після чого перевіряли її монотонний зв’язок із показниками розбіжності за коефіцієнтом Спірмена.
 
-[PROJECT SOURCE: scripts/analyze_hypotesis.py; results/tables/FINAL_H2_variability_vs_error.csv]
+[PROJECT SOURCE: scripts/analyze_h1_h5.py; results/tables/FINAL_H2_variability_vs_error.csv]
 
-Для основного показника розмаху 95% довірчі інтервали коефіцієнта Спірмена оцінювали кластерним bootstrap із повторним вибором хімічних каркасів, 1500 ітерацій. Додатково обчислювали часткову рангову кореляцію з контролем медіанного pIC50 та кількості assays або документів.
+Для кожного з чотирьох показників розбіжності 95% довірчі інтервали коефіцієнта Спірмена оцінювали кластерним bootstrap із повторним вибором цілих хімічних каркасів, 1500 ітерацій. Додатково обчислювали часткову рангову кореляцію з контролем медіанного pIC50 та кількості assays або документів.
 
-[PROJECT SOURCE: scripts/analyze_hypotesis.py; results/tables/FINAL_H2_variability_vs_error.csv; results/tables/FINAL_H1_H5_METADATA.json]
+[PROJECT SOURCE: scripts/analyze_h1_h5.py; results/tables/FINAL_H2_variability_vs_error.csv; results/tables/FINAL_H1_H5_METADATA.json]
 
-> [SOURCE NEEDED: у methods_fact_sheet зазначено поправку Holm, але заморожений файл FINAL_H2_variability_vs_error.csv не містить скоригованих p-значень. Не заявляти множинну поправку у фінальному рукописі без повторного запуску та збереження результату.]
+Оскільки для кожної моделі в кожній підвибірці одночасно перевіряли чотири показники розбіжності, їхні p-значення коригували методом Холма окремо в межах кожної комбінації «модель × рівень агрегації» (`different_assays` або `different_documents`). Корекція змінювала оцінку статистичної значущості, але не значення коефіцієнта ρ.
+
+[PROJECT SOURCE: scripts/analyze_h1_h5.py; results/tables/FINAL_H2_variability_vs_error.csv] [SOURCE NEEDED: первинне або методичне джерело для поправки Холма]
 
 ## Допоміжне порівняння з класифікаційною постановкою
 
@@ -112,21 +128,29 @@
 
 Для кожної тестової сполуки в кожному scaffold-фолді визначали максимальну коефіцієнтну подібність Танімото між її Morgan fingerprint і fingerprints усіх сполук навчальної частини. Для кожної сполуки максимальну подібність та абсолютну OOF-похибку усереднювали між трьома варіантами scaffold-розподілу.
 
-[PROJECT SOURCE: scripts/analyze_hypotesis.py; results/tables/FINAL_H4_similarity_vs_error.csv] [SOURCE NEEDED: первинне або методичне джерело для коефіцієнта Танімото у хемоінформатиці]
+[PROJECT SOURCE: scripts/analyze_h1_h5.py; results/tables/FINAL_H4_similarity_vs_error.csv] [SOURCE NEEDED: первинне або методичне джерело для коефіцієнта Танімото у хемоінформатиці]
 
 Зв’язок між максимальною подібністю до навчальної вибірки та абсолютною похибкою оцінювали за коефіцієнтом Спірмена. 95% довірчі інтервали отримували scaffold-кластерним bootstrap із 1500 ітераціями; додатково обчислювали часткову рангову кореляцію з контролем медіанного pIC50.
 
-[PROJECT SOURCE: scripts/analyze_hypotesis.py; results/tables/FINAL_H4_similarity_vs_error.csv; results/tables/FINAL_H1_H5_METADATA.json]
+[PROJECT SOURCE: scripts/analyze_h1_h5.py; results/tables/FINAL_H4_similarity_vs_error.csv; results/tables/FINAL_H1_H5_METADATA.json]
 
 ## Порівняння випадкового поділу з поділом за каркасами
 
-Для Random Forest і XGBoost на Morgan fingerprints додатково виконували випадкову п’ятикратну перехресну перевірку на тому самому наборі з 1645 сполук. Використовували три незалежні перемішування з random_state 1000, 1001 і 1002, зберігаючи ті самі параметри регресійних алгоритмів, що й в основному scaffold-аналізі.
+Для Random Forest і XGBoost на Morgan fingerprints додатково виконували випадкову п’ятикратну перехресну перевірку на тому самому наборі з 1645 сполук. Використовували три незалежні перемішування з `random_state` 1000, 1001 і 1002, зберігаючи ті самі параметри регресійних алгоритмів, що й в основному scaffold-аналізі.
 
-[PROJECT SOURCE: scripts/analyze_hypotesis.py; results/tables/FINAL_H5_random_vs_scaffold.csv; data/processed/trpa1_primary_dataset.csv]
+[PROJECT SOURCE: scripts/analyze_h1_h5.py; results/tables/FINAL_H5_random_oof_morgan.csv; results/tables/FINAL_H5_random_vs_scaffold.csv; data/processed/trpa1_primary_dataset.csv]
 
-Для кожного способу поділу розраховували RMSE, MAE, R² і коефіцієнт Спірмена на сукупності OOF-прогнозів. Результати усереднювали між трьома незалежними варіантами розподілу та порівнювали описово; окремого тесту статистичної значущості різниці між random і scaffold split у заморожених результатах не збережено.
+Для кожного способу поділу розраховували RMSE, MAE, R² і коефіцієнт Спірмена на сукупності OOF-прогнозів. Метрики обчислювали окремо для кожного з трьох варіантів розподілу, після чого усереднювали між ними.
 
-[PROJECT SOURCE: scripts/analyze_hypotesis.py; results/tables/FINAL_H5_random_vs_scaffold.csv]
+[PROJECT SOURCE: scripts/analyze_h1_h5.py; results/tables/FINAL_H5_random_vs_scaffold.csv]
+
+Статистичну невизначеність різниці між random і scaffold split оцінювали окремо для RMSE, MAE та R². Одиницею повторного вибору був цілий хімічний каркас, а не окрема молекула. Для 95% довірчих інтервалів різниці виконували 5000 bootstrap-ітерацій із повторним вибором 544 каркасів. Двобічне p-значення отримували в 10 000 перестановках, у яких для кожного каркаса випадково міняли місцями помилки, отримані за random і scaffold validation. У кожній ітерації метрики спочатку обчислювали для трьох розподілів окремо, а потім усереднювали, як у головній таблиці H5.
+
+[PROJECT SOURCE: scripts/test_h5_validation_difference.py; results/tables/FINAL_H5_significance.csv]
+
+Для кожної моделі три p-значення, отримані для RMSE, MAE та R², коригували методом Холма. Коефіцієнт Спірмена подано описово й не включено до цього множинного тестування.
+
+[PROJECT SOURCE: scripts/test_h5_validation_difference.py; results/tables/FINAL_H5_significance.csv] [SOURCE NEEDED: методичне джерело для cluster bootstrap і permutation test на рівні хімічних каркасів, якщо редакція вимагатиме зовнішнього статистичного посилання]
 
 ## Програмне забезпечення та відтворюваність
 
@@ -134,13 +158,15 @@
 
 [PROJECT SOURCE: results/tables/grid_final_metadata_20260801-152155.json; results/tables/grid_final_fold_assignments_20260801-152155.csv; results/tables/grid_final_oof_20260801-152155.csv; results/tables/grid_final_results_20260801-152155.csv] [SOURCE NEEDED: офіційні програмні цитати для Python-пакетів, які журнал вимагатиме включити до списку літератури]
 
-Додаткові аналізи розбіжності значень, хімічної подібності та random-versus-scaffold validation реалізовано в scripts/analyze_hypotesis.py. Канонічними вихідними файлами є FINAL_H2_variability_vs_error.csv, FINAL_H3_mihai_replication_summary.csv, FINAL_H4_similarity_vs_error.csv і FINAL_H5_random_vs_scaffold.csv.
+Повторний запуск аналізів H1–H5 виконано в Python 3.13.13 із NumPy 2.4.6, pandas 3.0.3, SciPy 1.17.1, scikit-learn 1.8.0, XGBoost 3.2.0 і RDKit 2026.03.2. Скрипт `scripts/analyze_h1_h5.py` сформував таблиці H1–H5, random-split OOF-прогнози та метадані з контрольними сумами. Окремий скрипт `scripts/test_h5_validation_difference.py` сформував cluster-bootstrap і permutation результати для порівняння random та scaffold validation.
 
-[PROJECT SOURCE: scripts/analyze_hypotesis.py; results/tables/FINAL_H2_variability_vs_error.csv; results/tables/FINAL_H3_mihai_replication_summary.csv; results/tables/FINAL_H4_similarity_vs_error.csv; results/tables/FINAL_H5_random_vs_scaffold.csv]
+[PROJECT SOURCE: scripts/analyze_h1_h5.py; scripts/test_h5_validation_difference.py; results/tables/FINAL_H1_H5_METADATA.json; results/tables/FINAL_H5_significance.csv]
 
-> [SOURCE NEEDED: зафіксувати точні версії програмного середовища саме для запуску H2–H5, якщо вони відрізнялися від середовища основного benchmark.]
+Канонічними вихідними файлами додаткових аналізів є `FINAL_H1_scaffold_performance.csv`, `FINAL_H2_variability_vs_error.csv`, `FINAL_H3_mihai_replication_summary.csv`, `FINAL_H4_similarity_vs_error.csv`, `FINAL_H5_random_vs_scaffold.csv`, `FINAL_H5_random_oof_morgan.csv` і `FINAL_H5_significance.csv`.
 
-> [SOURCE NEEDED: STATUS.md посилається на results/tables/FINAL_H1_scaffold_performance.csv, але такого файла у поточній main-гілці не знайдено. H1 відтворюється з grid_final_results_20260801-152155.csv; або створити й закомітити окремий H1-файл, або виправити STATUS.md.]
+[PROJECT SOURCE: results/tables/FINAL_H1_scaffold_performance.csv; results/tables/FINAL_H2_variability_vs_error.csv; results/tables/FINAL_H3_mihai_replication_summary.csv; results/tables/FINAL_H4_similarity_vs_error.csv; results/tables/FINAL_H5_random_vs_scaffold.csv; results/tables/FINAL_H5_random_oof_morgan.csv; results/tables/FINAL_H5_significance.csv]
+
+> [SOURCE NEEDED: скрипт `scripts/test_h5_validation_difference.py` не записує окремий файл із версіями середовища; якщо цей запуск виконувався не в тому самому середовищі, що `scripts/analyze_h1_h5.py`, версії треба зафіксувати окремо.]
 
 ## Етичні аспекти
 

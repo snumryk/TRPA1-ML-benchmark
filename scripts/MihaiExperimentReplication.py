@@ -1,250 +1,333 @@
+#!/usr/bin/env python3
+"""Auxiliary reproduction of a ligand-versus-random-decoy TRPA1 setup.
+
+This is NOT an exact replication of Mihai et al.:
+- Morgan ECFP4 fingerprints replace MNA descriptors;
+- the active and decoy sets differ in size;
+- random ChEMBL decoys are not property-matched;
+- validation is random/stratified rather than scaffold-held-out.
+
+Scientific purpose:
+Demonstrate that ligand-versus-random-unmatched-decoy classification can be
+nearly trivial and therefore must not be confused with scaffold-aware pIC50
+regression or prospective virtual-screening validation.
+
+The script deliberately has NO silent neural-network fallback. TensorFlow is
+required for the Keras FFNN. If it is unavailable, the run stops explicitly.
 """
-Replication of Mihai et al. (2020) on ChEMBL 36 data.
-Task: TRPA1 antagonist (class 1) vs random ChEMBL decoy (class 0)
-Features: Morgan ECFP4 2048 bits (proxy for their MNA level-3 1376)
-Split: random 80/20 stratified, random_state=34
-Models: RF, SVM, FFNN with their exact hyperparameters
-Metrics: TPR, TNR, ACC, bACC, FPR, NPV, ROC AUC + 10-fold CV
-"""
-import pandas as pd
+
+from __future__ import annotations
+
+import argparse
+import json
+import platform
+import random
+from pathlib import Path
+from typing import Callable
+
 import numpy as np
-from rdkit import Chem
+import pandas as pd
+from rdkit import Chem, DataStructs, rdBase
 from rdkit.Chem import rdFingerprintGenerator
+from sklearn import __version__ as sklearn_version
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.svm import SVC
-from sklearn.model_selection import train_test_split, StratifiedKFold
 from sklearn.metrics import confusion_matrix, roc_auc_score
-import warnings
-warnings.filterwarnings('ignore')
+from sklearn.model_selection import StratifiedKFold, train_test_split
+from sklearn.svm import SVC
 
-SEED = 34  # Mihai's random_state
+SEED = 34
+FP_SIZE = 2048
+N_SPLITS = 10
 
-# ── 1. Load data ───────────────────────────────────────────────
-ant = pd.read_csv('trpa1_antagonists.csv')
-dec = pd.read_csv('decoys_clean.csv')
-print(f"Antagonists (class 1): {len(ant)}")
-print(f"Decoys (class 0):      {len(dec)}")
-print(f"Ratio: {len(ant)/len(dec):.2f}:1")
 
-# ── 2. Morgan fingerprints ─────────────────────────────────────
-mfpgen = rdFingerprintGenerator.GetMorganGenerator(radius=2, fpSize=2048)
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--repo-root",
+        type=Path,
+        default=Path.cwd(),
+        help="Repository root; defaults to the current directory.",
+    )
+    parser.add_argument(
+        "--actives",
+        type=Path,
+        default=Path("data/processed/trpa1_primary_dataset.csv"),
+    )
+    parser.add_argument(
+        "--decoys",
+        type=Path,
+        default=Path("data/processed/decoys_clean.csv"),
+    )
+    parser.add_argument(
+        "--output",
+        type=Path,
+        default=Path("results/tables/H3_auxiliary_random_decoy_summary.csv"),
+    )
+    parser.add_argument(
+        "--metadata",
+        type=Path,
+        default=Path("results/tables/H3_auxiliary_random_decoy_metadata.json"),
+    )
+    return parser.parse_args()
 
-def smi_to_fp(smi):
-    mol = Chem.MolFromSmiles(smi)
-    if mol is None:
-        return None
-    fp = mfpgen.GetFingerprint(mol)
-    arr = np.zeros((2048,), dtype=np.int8)
-    Chem.DataStructs.ConvertToNumpyArray(fp, arr)
-    return arr
 
-print("\nComputing fingerprints...")
-ant_fps = [smi_to_fp(s) for s in ant['std_smiles']]
-dec_fps = [smi_to_fp(s) for s in dec['std_smiles']]
+def resolve(root: Path, value: Path) -> Path:
+    return value if value.is_absolute() else root / value
 
-# Remove any None (failed parse)
-ant_valid = [(fp, 1) for fp in ant_fps if fp is not None]
-dec_valid = [(fp, 0) for fp in dec_fps if fp is not None]
-print(f"Valid fingerprints: {len(ant_valid)} antagonists, {len(dec_valid)} decoys")
 
-all_data = ant_valid + dec_valid
-X = np.vstack([d[0] for d in all_data])
-y = np.array([d[1] for d in all_data])
-print(f"Combined: X={X.shape}, class 1={y.sum()}, class 0={len(y)-y.sum()}")
+def smiles_to_fp(smiles: str, generator) -> np.ndarray:
+    molecule = Chem.MolFromSmiles(str(smiles))
+    if molecule is None:
+        raise ValueError(f"RDKit could not parse SMILES: {smiles!r}")
+    fingerprint = generator.GetFingerprint(molecule)
+    array = np.zeros((FP_SIZE,), dtype=np.uint8)
+    DataStructs.ConvertToNumpyArray(fingerprint, array)
+    return array
 
-# ── 3. Random 80/20 stratified split ──────────────────────────
-X_train, X_test, y_train, y_test = train_test_split(
-    X, y, test_size=0.20, random_state=SEED, stratify=y)
-print(f"\nTrain: {len(y_train)} (class 1: {y_train.sum()}, class 0: {len(y_train)-y_train.sum()})")
-print(f"Test:  {len(y_test)} (class 1: {y_test.sum()}, class 0: {len(y_test)-y_test.sum()})")
 
-# ── 4. Metrics function (exact same as Mihai Table 1) ─────────
-def compute_metrics(y_true, y_pred, y_prob):
-    cm = confusion_matrix(y_true, y_pred)
-    tn, fp, fn, tp = cm.ravel()
-    tpr = tp / (tp + fn) if (tp + fn) else 0
-    tnr = tn / (tn + fp) if (tn + fp) else 0
-    acc = (tp + tn) / (tp + tn + fp + fn)
-    bacc = (tpr + tnr) / 2
-    fpr = fp / (tn + fp) if (tn + fp) else 0
-    npv = tn / (tn + fn) if (tn + fn) else 0
-    auc = roc_auc_score(y_true, y_prob)
+def metrics(y_true: np.ndarray, y_pred: np.ndarray, y_prob: np.ndarray) -> dict:
+    tn, fp, fn, tp = confusion_matrix(y_true, y_pred).ravel()
+    tpr = tp / (tp + fn)
+    tnr = tn / (tn + fp)
     return {
-        'TPR': tpr, 'TNR': tnr, 'ACC': acc, 'bACC': bacc,
-        'FPR': fpr, 'NPV': npv, 'AUC': auc
+        "TPR": float(tpr),
+        "TNR": float(tnr),
+        "Accuracy": float((tp + tn) / (tp + tn + fp + fn)),
+        "balanced_accuracy": float((tpr + tnr) / 2),
+        "FPR": float(fp / (tn + fp)),
+        "NPV": float(tn / (tn + fn)),
+        "test_AUC": float(roc_auc_score(y_true, y_prob)),
     }
 
-def print_metrics(name, m):
-    print(f"\n  {name}:")
-    print(f"    TPR (sensitivity): {m['TPR']*100:6.2f}%")
-    print(f"    TNR (specificity): {m['TNR']*100:6.2f}%")
-    print(f"    ACC:               {m['ACC']*100:6.2f}%")
-    print(f"    bACC:              {m['bACC']*100:6.2f}%")
-    print(f"    FPR:               {m['FPR']*100:6.2f}%")
-    print(f"    NPV:               {m['NPV']*100:6.2f}%")
-    print(f"    ROC AUC:           {m['AUC']:.4f}")
 
-# ── 5. 10-fold CV function ────────────────────────────────────
-def cv_auc(model_fn, X, y):
-    cv = StratifiedKFold(n_splits=10, shuffle=True, random_state=SEED)
-    aucs = []
-    for tr_idx, te_idx in cv.split(X, y):
-        model = model_fn()
-        model.fit(X[tr_idx], y[tr_idx])
-        prob = model.predict_proba(X[te_idx])[:, 1]
-        aucs.append(roc_auc_score(y[te_idx], prob))
-    return np.mean(aucs), np.std(aucs)
+def cv_auc_sklearn(
+    factory: Callable[[], object],
+    features: np.ndarray,
+    labels: np.ndarray,
+) -> tuple[float, float]:
+    splitter = StratifiedKFold(
+        n_splits=N_SPLITS,
+        shuffle=True,
+        random_state=SEED,
+    )
+    values = []
+    for train_idx, test_idx in splitter.split(features, labels):
+        model = factory()
+        model.fit(features[train_idx], labels[train_idx])
+        probability = model.predict_proba(features[test_idx])[:, 1]
+        values.append(roc_auc_score(labels[test_idx], probability))
+    return float(np.mean(values)), float(np.std(values, ddof=1))
 
-# ══════════════════════════════════════════════════════════════
-# MODEL 1: RANDOM FOREST (Mihai's exact params)
-# ══════════════════════════════════════════════════════════════
-print("\n" + "="*60)
-print("MODEL 1: RANDOM FOREST")
-print("  n_estimators=50, max_depth=90, max_features=sqrt")
-print("  min_samples_split=2, min_samples_leaf=1, random_state=34")
-print("="*60)
 
-def make_rf():
+def make_rf() -> RandomForestClassifier:
     return RandomForestClassifier(
-        n_estimators=50, max_depth=90, max_features='sqrt',
-        min_samples_split=2, min_samples_leaf=1, random_state=SEED)
+        n_estimators=50,
+        max_depth=90,
+        max_features="sqrt",
+        min_samples_split=2,
+        min_samples_leaf=1,
+        random_state=SEED,
+        n_jobs=-1,
+    )
 
-rf = make_rf()
-rf.fit(X_train, y_train)
-rf_pred = rf.predict(X_test)
-rf_prob = rf.predict_proba(X_test)[:, 1]
-rf_m = compute_metrics(y_test, rf_pred, rf_prob)
-print_metrics("Test set", rf_m)
 
-rf_cv_mean, rf_cv_std = cv_auc(make_rf, X, y)
-print(f"\n  10-fold CV Mean AUC: {rf_cv_mean:.4f} (+/-{rf_cv_std:.4f})")
+def make_svm() -> SVC:
+    return SVC(
+        C=8,
+        gamma=0.001,
+        kernel="rbf",
+        probability=True,
+        random_state=SEED,
+    )
 
-# ══════════════════════════════════════════════════════════════
-# MODEL 2: SVM (Mihai's exact params)
-# ══════════════════════════════════════════════════════════════
-print("\n" + "="*60)
-print("MODEL 2: SVM")
-print("  C=8, gamma=0.001, kernel=rbf")
-print("="*60)
 
-def make_svm():
-    return SVC(C=8, gamma=0.001, kernel='rbf',
-               probability=True, random_state=SEED)
+def main() -> None:
+    args = parse_args()
+    root = args.repo_root.resolve()
+    active_path = resolve(root, args.actives)
+    decoy_path = resolve(root, args.decoys)
+    output_path = resolve(root, args.output)
+    metadata_path = resolve(root, args.metadata)
 
-svm = make_svm()
-svm.fit(X_train, y_train)
-svm_pred = svm.predict(X_test)
-svm_prob = svm.predict_proba(X_test)[:, 1]
-svm_m = compute_metrics(y_test, svm_pred, svm_prob)
-print_metrics("Test set", svm_m)
+    for path in (active_path, decoy_path):
+        if not path.is_file():
+            raise FileNotFoundError(path)
 
-svm_cv_mean, svm_cv_std = cv_auc(make_svm, X, y)
-print(f"\n  10-fold CV Mean AUC: {svm_cv_mean:.4f} (+/-{svm_cv_std:.4f})")
+    actives = pd.read_csv(active_path)
+    decoys = pd.read_csv(decoy_path)
 
-# ══════════════════════════════════════════════════════════════
-# MODEL 3: FFNN (Mihai's architecture)
-# ══════════════════════════════════════════════════════════════
-print("\n" + "="*60)
-print("MODEL 3: FFNN")
-print("  Architecture: 2048 -> 750 (ReLU, dropout=0.6) -> 1 (sigmoid)")
-print("  Loss: binary_crossentropy, epochs=30, batch=16")
-print("="*60)
+    for name, frame in (("actives", actives), ("decoys", decoys)):
+        if "std_smiles" not in frame.columns:
+            raise ValueError(f"{name} file has no std_smiles column")
+        if frame["std_smiles"].isna().any():
+            raise ValueError(f"{name} file contains missing SMILES")
 
-# Try TensorFlow first, fall back to sklearn MLP
-try:
-    import tensorflow as tf
-    tf.random.set_seed(SEED)
-    from tensorflow.keras.models import Sequential
-    from tensorflow.keras.layers import Dense, Dropout, Input
-    USE_TF = True
-    print("  Using TensorFlow/Keras")
-except ImportError:
-    USE_TF = False
-    print("  TensorFlow not available, using sklearn MLPClassifier")
+    generator = rdFingerprintGenerator.GetMorganGenerator(
+        radius=2,
+        fpSize=FP_SIZE,
+    )
+    active_fp = np.vstack(
+        [smiles_to_fp(value, generator) for value in actives["std_smiles"]]
+    )
+    decoy_fp = np.vstack(
+        [smiles_to_fp(value, generator) for value in decoys["std_smiles"]]
+    )
 
-if USE_TF:
+    features = np.vstack([active_fp, decoy_fp])
+    labels = np.concatenate(
+        [
+            np.ones(len(active_fp), dtype=np.uint8),
+            np.zeros(len(decoy_fp), dtype=np.uint8),
+        ]
+    )
+
+    train_x, test_x, train_y, test_y = train_test_split(
+        features,
+        labels,
+        test_size=0.20,
+        random_state=SEED,
+        stratify=labels,
+    )
+
+    rows: list[dict] = []
+
+    for name, factory in (("RF", make_rf), ("SVM", make_svm)):
+        model = factory()
+        model.fit(train_x, train_y)
+        predicted = model.predict(test_x)
+        probability = model.predict_proba(test_x)[:, 1]
+        current = metrics(test_y, predicted, probability)
+        cv_mean, cv_sd = cv_auc_sklearn(factory, features, labels)
+        rows.append(
+            {
+                "model": name,
+                **current,
+                "CV_AUC_mean": cv_mean,
+                "CV_AUC_sd": cv_sd,
+                "backend": "scikit-learn",
+                "task": "ligand_vs_random_unmatched_decoy",
+            }
+        )
+
+    # Fail explicitly rather than silently substituting sklearn MLP.
+    try:
+        import tensorflow as tf
+        from tensorflow.keras.layers import Dense, Dropout, Input
+        from tensorflow.keras.models import Sequential
+    except ImportError as exc:
+        raise RuntimeError(
+            "TensorFlow is required for the Keras FFNN. "
+            "No sklearn MLP fallback is permitted."
+        ) from exc
+
+    random.seed(SEED)
+    np.random.seed(SEED)
+    tf.keras.utils.set_random_seed(SEED)
+    try:
+        tf.config.experimental.enable_op_determinism()
+    except Exception:
+        # Some TensorFlow versions/platforms do not expose this function.
+        pass
+
     def make_ffnn():
-        m = Sequential([
-            Input(shape=(2048,)),
-            Dense(750, activation='relu'),
-            Dropout(0.6),
-            Dense(1, activation='sigmoid'),
-        ])
-        m.compile(optimizer='adam', loss='binary_crossentropy')
-        return m
+        model = Sequential(
+            [
+                Input(shape=(FP_SIZE,)),
+                Dense(750, activation="relu"),
+                Dropout(0.6),
+                Dense(1, activation="sigmoid"),
+            ]
+        )
+        model.compile(optimizer="adam", loss="binary_crossentropy")
+        return model
 
     ffnn = make_ffnn()
-    ffnn.fit(X_train, y_train, epochs=30, batch_size=16, verbose=0)
-    ffnn_prob = ffnn.predict(X_test, verbose=0).ravel()
-    ffnn_pred = (ffnn_prob >= 0.5).astype(int)
-    ffnn_m = compute_metrics(y_test, ffnn_pred, ffnn_prob)
-    print_metrics("Test set", ffnn_m)
+    ffnn.fit(train_x, train_y, epochs=30, batch_size=16, verbose=0)
+    probability = ffnn.predict(test_x, verbose=0).ravel()
+    predicted = (probability >= 0.5).astype(np.uint8)
+    current = metrics(test_y, predicted, probability)
 
-    # 10-fold CV for FFNN
-    print("\n  10-fold CV (this takes a few minutes)...")
-    cv = StratifiedKFold(n_splits=10, shuffle=True, random_state=SEED)
-    ffnn_cv_aucs = []
-    for fold, (tr_idx, te_idx) in enumerate(cv.split(X, y)):
-        tf.random.set_seed(SEED)
-        m = make_ffnn()
-        m.fit(X[tr_idx], y[tr_idx], epochs=30, batch_size=16, verbose=0)
-        prob = m.predict(X[te_idx], verbose=0).ravel()
-        auc = roc_auc_score(y[te_idx], prob)
-        ffnn_cv_aucs.append(auc)
-        print(f"    fold {fold+1}/10: AUC={auc:.4f}")
-    ffnn_cv_mean = np.mean(ffnn_cv_aucs)
-    ffnn_cv_std = np.std(ffnn_cv_aucs)
-    print(f"\n  10-fold CV Mean AUC: {ffnn_cv_mean:.4f} (+/-{ffnn_cv_std:.4f})")
+    splitter = StratifiedKFold(
+        n_splits=N_SPLITS,
+        shuffle=True,
+        random_state=SEED,
+    )
+    cv_values = []
+    for fold, (train_idx, test_idx) in enumerate(
+        splitter.split(features, labels),
+        start=1,
+    ):
+        tf.keras.backend.clear_session()
+        tf.keras.utils.set_random_seed(SEED + fold)
+        model = make_ffnn()
+        model.fit(
+            features[train_idx],
+            labels[train_idx],
+            epochs=30,
+            batch_size=16,
+            verbose=0,
+        )
+        fold_probability = model.predict(
+            features[test_idx],
+            verbose=0,
+        ).ravel()
+        cv_values.append(
+            roc_auc_score(labels[test_idx], fold_probability)
+        )
 
-else:
-    from sklearn.neural_network import MLPClassifier
-    def make_mlp():
-        return MLPClassifier(
-            hidden_layer_sizes=(750,), activation='relu',
-            max_iter=30, batch_size=16, random_state=SEED)
-    mlp = make_mlp()
-    mlp.fit(X_train, y_train)
-    mlp_prob = mlp.predict_proba(X_test)[:, 1]
-    mlp_pred = mlp.predict(X_test)
-    ffnn_m = compute_metrics(y_test, mlp_pred, mlp_prob)
-    print_metrics("Test set", ffnn_m)
-    ffnn_cv_mean, ffnn_cv_std = cv_auc(make_mlp, X, y)
-    print(f"\n  10-fold CV Mean AUC: {ffnn_cv_mean:.4f} (+/-{ffnn_cv_std:.4f})")
+    rows.append(
+        {
+            "model": "Keras-FFNN",
+            **current,
+            "CV_AUC_mean": float(np.mean(cv_values)),
+            "CV_AUC_sd": float(np.std(cv_values, ddof=1)),
+            "backend": f"tensorflow-{tf.__version__}",
+            "task": "ligand_vs_random_unmatched_decoy",
+        }
+    )
 
-# ══════════════════════════════════════════════════════════════
-# COMPARISON TABLE
-# ══════════════════════════════════════════════════════════════
-print("\n" + "="*70)
-print("COMPARISON: Mihai et al. (2020) vs Our Replication (ChEMBL 36)")
-print("="*70)
-print(f"\nMihai: 371 actives + 127 decoys, MNA level-3, random 80/20")
-print(f"Ours:  1645 actives + 560 decoys, Morgan ECFP4, random 80/20")
-print(f"\n{'':>8} {'':>8} {'--- Mihai ---':>24} {'--- Ours ---':>24}")
-print(f"{'Model':<8} {'Metric':<8} {'Value':>12}         {'Value':>12}")
-print("-"*70)
-print(f"{'RF':<8} {'ACC':>8} {'99.00%':>12}         {rf_m['ACC']*100:>11.2f}%")
-print(f"{'RF':<8} {'bACC':>8} {'98.00%':>12}         {rf_m['bACC']*100:>11.2f}%")
-print(f"{'RF':<8} {'TPR':>8} {'100.00%':>12}         {rf_m['TPR']*100:>11.2f}%")
-print(f"{'RF':<8} {'TNR':>8} {'96.00%':>12}         {rf_m['TNR']*100:>11.2f}%")
-print(f"{'RF':<8} {'AUC CV':>8} {'0.9936':>12}         {rf_cv_mean:>11.4f}")
-print(f"{'':>8} {'':>8}")
-print(f"{'SVM':<8} {'ACC':>8} {'90.00%':>12}         {svm_m['ACC']*100:>11.2f}%")
-print(f"{'SVM':<8} {'bACC':>8} {'88.00%':>12}         {svm_m['bACC']*100:>11.2f}%")
-print(f"{'SVM':<8} {'TPR':>8} {'92.00%':>12}         {svm_m['TPR']*100:>11.2f}%")
-print(f"{'SVM':<8} {'TNR':>8} {'84.00%':>12}         {svm_m['TNR']*100:>11.2f}%")
-print(f"{'SVM':<8} {'AUC CV':>8} {'0.9354':>12}         {svm_cv_mean:>11.4f}")
-print(f"{'':>8} {'':>8}")
-print(f"{'FFNN':<8} {'ACC':>8} {'88.00%':>12}         {ffnn_m['ACC']*100:>11.2f}%")
-print(f"{'FFNN':<8} {'bACC':>8} {'85.33%':>12}         {ffnn_m['bACC']*100:>11.2f}%")
-print(f"{'FFNN':<8} {'TPR':>8} {'90.67%':>12}         {ffnn_m['TPR']*100:>11.2f}%")
-print(f"{'FFNN':<8} {'TNR':>8} {'80.00%':>12}         {ffnn_m['TNR']*100:>11.2f}%")
-print(f"{'FFNN':<8} {'AUC CV':>8} {'0.9354':>12}         {ffnn_cv_mean:>11.4f}")
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    result = pd.DataFrame(rows)
+    result.to_csv(output_path, index=False, lineterminator="\n")
 
-print("\n" + "="*70)
-print("INTERPRETATION")
-print("="*70)
-print("If our numbers are close to Mihai's -> their result is reproducible")
-print("  and the high performance comes from the TASK FRAMING (ligand vs")
-print("  random decoy), not from MNA descriptors specifically.")
-print("If our numbers are much lower -> descriptor choice matters more")
-print("  than task framing, and MNA may genuinely outperform Morgan here.")
+    metadata_path.parent.mkdir(parents=True, exist_ok=True)
+    metadata = {
+        "analysis_name": (
+            "Auxiliary reproduction of ligand-versus-random-unmatched-decoy "
+            "classification"
+        ),
+        "not_an_exact_replication": True,
+        "seed": SEED,
+        "n_splits": N_SPLITS,
+        "n_actives": int(len(active_fp)),
+        "n_decoys": int(len(decoy_fp)),
+        "fingerprint": {
+            "type": "Morgan ECFP4",
+            "radius": 2,
+            "size": FP_SIZE,
+        },
+        "inputs": {
+            "actives": str(active_path.relative_to(root)),
+            "decoys": str(decoy_path.relative_to(root)),
+        },
+        "versions": {
+            "python": platform.python_version(),
+            "numpy": np.__version__,
+            "pandas": pd.__version__,
+            "rdkit": rdBase.rdkitVersion,
+            "scikit_learn": sklearn_version,
+            "tensorflow": tf.__version__,
+        },
+    }
+    metadata_path.write_text(
+        json.dumps(metadata, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
+
+    print(result.to_string(index=False))
+    print(f"\nSaved: {output_path}")
+    print(f"Metadata: {metadata_path}")
+
+
+if __name__ == "__main__":
+    main()

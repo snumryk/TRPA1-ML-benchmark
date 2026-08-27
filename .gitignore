@@ -31,5 +31,9 @@ secrets*
 Thumbs.db
 Desktop.ini
 
+# Microsoft Office / LibreOffice temporary lock files
+~$*
+.~lock.*#
+
 # Too large for normal GitHub
 Chat log with Claude.pdf
