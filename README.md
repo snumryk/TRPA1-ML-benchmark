@@ -1,1014 +1,397 @@
 # TRPA1 ML Benchmark
 
-> **Головна точка входу до проєкту.**  
-> Перед будь-якою роботою новий дослідник або AI-асистент має спочатку прочитати цей README, а вже потім відкривати окремі CSV, скрипти та старі звіти.
->
-> **Остання звірка стану:** 20 серпня 2026 року.
+> **Канонічна точка входу до проєкту.**  
+> Цей README відображає затверджений стан статті за `STATUS.md` і `docs/paper_plan.md`.  
+> **Оновлено:** 27 серпня 2026 року.
 
 ---
 
 ## 1. Проєкт одним реченням
 
-Мета проєкту — передбачати **reported inhibitory potency human TRPA1** за структурою молекули та перевірити, чи покращується прогноз, якщо разом зі структурою врахувати **умови біологічного assay**.
+Проєкт оцінює, наскільки точно за молекулярною структурою можна прогнозувати **агреговане за літературними даними pIC50 інгібування TRPA1 людини для нових хімічних каркасів**, і перевіряє, як із похибкою прогнозу пов’язані розбіжність опублікованих значень, хімічна віддаленість сполуки та спосіб поділу даних.
 
-Простими словами:
+Основна задача:
 
 ```text
-Модель 1: структура молекули → pIC50
-
-Модель 2: структура молекули + умови експерименту → pIC50
+стандартизована молекулярна структура
+→ модель
+→ агреговане літературне pIC50 human TRPA1
 ```
 
-Головне нове питання:
-
-> Чи пояснюють тип assay, агоніст, клітинна система, час преінкубації та інші параметри протоколу частину розкиду опублікованих IC50/pIC50 для human TRPA1?
+Основна перевірка виконується для Bemis–Murcko-каркасів, відсутніх у навчальній частині відповідного fold.
 
 ---
 
-## 2. Чому assay context важливий
+## 2. Затверджене наукове питання
 
-TRPA1 — складний іонний канал. Виміряне IC50 може залежати не лише від структури інгібітора, а й від:
+> **Наскільки точно можна за молекулярною структурою прогнозувати агреговані за літературними даними значення pIC50 інгібування TRPA1 людини для хімічних каркасів, не представлених під час навчання, і чи пов’язана похибка такого прогнозу з розбіжністю опублікованих значень для тієї самої сполуки?**
 
-- активатора каналу: AITC, cinnamaldehyde, Ca²⁺, Zn²⁺ та ін.;
-- концентрації або рівня активатора, наприклад EC50 чи EC80;
-- клітинної системи: CHO, HEK293 та їхніх похідних;
-- способу реєстрації: calcium fluorescence, radiometric calcium, electrophysiology;
-- порядку додавання речовин;
-- часу контакту тестової сполуки з клітинами;
-- конструкта каналу;
-- fit-процедури та інших деталей протоколу.
-
-Тому цільова змінна цього проєкту — не «універсальна афінність молекули до TRPA1», а:
-
-> **reported inhibitory potency measured in heterogeneous human TRPA1 assays.**
-
-Концептуально:
-
-```text
-reported pIC50
-≈ внесок структури молекули
-+ внесок умов assay
-+ експериментальний шум
-```
+Безпосередня мета проєкту — завершити повний рукопис для подання до *Fiziologichnyi Zhurnal*.
 
 ---
 
-## 3. Джерело даних і зафіксований snapshot
+## 3. Джерело даних і заморожений набір
 
-Основне джерело — **ChEMBL 37**, release date **2026-05-01**.
-
-Target:
-
-```text
-CHEMBL6007 = human TRPA1
-```
+Основне джерело — **ChEMBL 37**, target `CHEMBL6007` — human TRPA1.
 
 Строгий activity filter:
 
 ```text
+target_chembl_id = CHEMBL6007
 standard_type = IC50
 standard_relation = "="
 pchembl_value is not null
-target_chembl_id = CHEMBL6007
 ```
 
-Зафіксований набір:
+Зафіксований стан даних:
 
 | Показник | Значення |
 |---|---:|
-| Raw activities після API filter | 2 203 |
-| Придатні activity records після стандартизації | 2 196 |
-| Унікальні стандартизовані молекули | 1 645 |
+| Придатні activity records | 2 196 |
+| Стандартизовані сполуки | 1 645 |
+| Bemis–Murcko scaffolds | 544 |
 | Assays | 97 |
 | ChEMBL documents | 55 |
 | Роки документів | 2010–2025 |
-| Assays із `confidence_score = 9` | 87 |
-| Assays із `confidence_score = 8` | 10 |
 
-Ролі 97 assays у `data/assays/assay_table.csv`:
-
-| Роль | Assays | Значення |
-|---|---:|---|
-| `primary` | 76 | консервативне ядро для assay-aware аналізу |
-| `sensitivity` | 9 | homologous-target / score-8 assays, потенційно корисні для додаткової перевірки |
-| `excluded` | 12 | механістично непридатні, mutant/chimera, direct agonism/desensitization, дублікати або інші причини виключення |
-
-### Критичне правило
-
-**Не робити нового ChEMBL extraction і не перебудовувати dataset з поточного API без окремого рішення автора проєкту.**
-
-Джерело істини:
+Джерело істини для сирих даних:
 
 ```text
 data/raw/trpa1_raw_snapshots/ChEMBL_37_20260806T144919Z/
 ```
 
+Заморожена record-level таблиця:
+
+```text
+data/raw/trpa1_current_api_raw.csv
+```
+
+Основний molecule-level dataset:
+
+```text
+data/processed/trpa1_primary_dataset.csv
+```
+
+Перехід від 2 196 записів до 1 645 сполук є **агрегацією**, а не відбором 1 645 окремих біологічних експериментів. Записи об’єднано за стандартизованою молекулярною структурою, а цільову змінну `pchembl_median` визначено як медіану збережених значень pChEMBL для сполуки.
+
+У рукописі цей показник позначається як агреговане pIC50, оскільки всі включені activity records мають endpoint `IC50`. Це **літературно агрегована potency**, а не значення, отримане в одному стандартизованому assay-протоколі.
+
+### Критичне правило
+
+**Не виконувати нового ChEMBL extraction і не перебудовувати набір із поточного API без окремого рішення автора проєкту.**
+
 ---
 
-## 4. Що вже зроблено
+## 4. Затверджені гіпотези H1–H5
 
-### Завершено
+### H1 — прогноз для нових каркасів
+
+Молекулярна структура дозволяє прогнозувати агреговане pIC50 краще за передбачення середнього значення навіть для каркасів, відсутніх у train.
+
+**Стан:** підтримана. Для RF/XGBoost + Morgan середнє scaffold-CV `R² ≈ 0,57`.
+
+### H2 — розбіжність опублікованих значень
+
+Більша розбіжність assay-level pIC50 пов’язана з більшою похибкою прогнозу.
+
+**Стан:** виявлено слабку позитивну асоціацію на широкій multi-assay підвибірці:
+
+```text
+393 multi-assay compounds
+ρ = 0,127–0,164
+```
+
+Для 52 сполук, представлених у кількох документах, асоціація сильніша (`ρ = 0,347–0,449`), але ця підвибірка мала й невипадкова.
+
+### H3 — ligand-versus-random-decoy classification
+
+Проста класифікація «TRPA1-ліганд проти випадкового decoy» створює значно оптимістичніше враження, ніж scaffold-регресія pIC50.
+
+**Стан:** підтримана як допоміжний контраст. Отримано `AUC = 0,9968–0,9983`, але ця задача не доводить практичної якості prospective virtual screening.
+
+### H4 — хімічна віддаленість
+
+Похибка зростає зі зменшенням подібності тестової сполуки до найближчої навчальної молекули.
+
+**Стан:** підтримана; для RF і XGBoost `ρ ≈ −0,177`.
+
+### H5 — random split проти scaffold split
+
+Random split завищує видиму якість моделі порівняно з поділом за хімічними каркасами.
+
+**Стан:** підтримана:
+
+```text
+RF:       R² 0,572 scaffold → 0,640 random
+XGBoost:  R² 0,567 scaffold → 0,638 random
+```
+
+При random split приблизно 79% тестових молекул мають scaffold, уже присутній у train.
+
+---
+
+## 5. Що завершено
 
 - зафіксовано ChEMBL 37 snapshot і provenance;
-- стандартизовано структури;
-- сформовано molecule-level dataset із 1 645 молекул;
-- виконано аудит усіх 97 assays;
-- створено бібліографічний registry для 55 ChEMBL documents;
-- автоматично розібрано assay descriptions на окремі параметри протоколу;
+- сформовано заморожений molecule-level dataset із 1 645 сполук;
 - виконано structure-only benchmark:
   - Morgan ECFP4;
   - RDKit-15 descriptors;
-  - ChemBERTa embeddings;
-  - MolFormer embeddings;
-  - RF і XGBoost;
-  - 3 scaffold partitions × 5 folds;
-- збережено fold assignments, out-of-fold predictions, metadata та результати;
-- знайдено дві великі paired-assay пари для однакових compounds.
-
-### Попередньо виконано, але не готово для сильних висновків
-
-- D-MPNN та D-MPNN + descriptors;
-- fine-tuning ChemBERTa/MolFormer;
-- feature importance;
-- paired-assay causal interpretation;
-- protocol families, побудовані лише за автоматично витягнутими полями.
-
-### Ще не виконано
-
-- фінальний QC protocol columns у record-level assay-aware dataset;
-- чесне порівняння:
-  - structure-only model;
-  - structure + assay conditions model;
-- matched homogeneous-subset analysis;
-- document-held-out stress test;
-- остаточне статистичне парне порівняння assay-aware моделей.
+  - frozen ChemBERTa embeddings;
+  - frozen MolFormer embeddings;
+  - Random Forest;
+  - XGBoost;
+- виконано три незалежні 5-кратні scaffold partitions;
+- використано однакові fold assignments для всіх моделей;
+- збережено out-of-fold predictions і run metadata;
+- виконано аудит 97 assays і source registry для 55 ChEMBL documents;
+- виконано затверджені аналізи H1–H5;
+- для H2 і H4 застосовано scaffold-cluster bootstrap;
+- для H5 виконано cluster bootstrap і permutation comparison random-versus-scaffold validation;
+- підготовлено робочу версію розділу «Матеріали та методи».
 
 ---
 
-## 5. Що показав уже виконаний structure-only benchmark
+## 6. Поточний головний технічний розрив
 
-Повна сітка `4 molecular representations × 2 regressors` виконана й лежить у `results/tables/`.
-
-Коректний попередній висновок:
-
-> Morgan fingerprints і ChemBERTa embeddings показали близьку якість. Стабільної переваги складніших learned representations над Morgan не встановлено.
-
-Некоректні твердження:
+У репозиторії є заморожені сирі дані та готовий файл:
 
 ```text
-"Старі алгоритми однозначно виграли."
-"GNN остаточно програла."
-"Нейромережі не працюють для TRPA1."
+data/processed/trpa1_primary_dataset.csv
 ```
 
-D-MPNN runs мають технічні обмеження: early stopping, seed variability і нерівний tuning budget.
+але немає одного канонічного executable-скрипту, який відтворює весь перехід:
+
+```text
+record-level ChEMBL data
+→ стандартизація структур
+→ molecule-level aggregation
+→ Bemis–Murcko scaffolds
+→ trpa1_primary_dataset.csv
+```
+
+Історична документація описує такий pipeline:
+
+1. RDKit parsing молекулярних структур.
+2. Видалення солей або вибір основного фрагмента.
+3. Генерація canonical isomeric SMILES.
+4. Генерація стандартизованого InChIKey.
+5. Deduplication за стандартизованою структурою.
+6. Агрегація pChEMBL медіаною.
+7. Побудова Bemis–Murcko scaffold.
+
+### Наступний крок
+
+Створити канонічний скрипт побудови основного датасету, робоча назва:
+
+```text
+scripts/03_build_primary_dataset.py
+```
+
+Скрипт має:
+
+- працювати лише із замороженими файлами репозиторію;
+- не звертатися до поточного ChEMBL API;
+- мати явні критерії включення та fail-fast перевірки;
+- детерміновано стандартизувати структури;
+- документувати всі вилучені або непридатні записи;
+- формувати `trpa1_primary_dataset.csv` із зафіксованою схемою колонок;
+- перевіряти очікувані 2 196 records, 1 645 compounds і 544 scaffolds;
+- записувати metadata, версії бібліотек, параметри та SHA-256 входів/виходів;
+- або точно відтворити заморожений dataset, або явно показати й пояснити кожну розбіжність.
+
+**Не змінювати мовчки визначення target, правила стандартизації чи склад набору лише для отримання збігу.**
 
 ---
 
-## 6. Поточний головний експеримент
+## 7. Основний benchmark
 
-### Наукове питання
-
-Чи покращується прогноз окремого assay-level pIC50, якщо моделі дати інформацію про assay protocol?
-
-### Вхідний файл
+### Молекулярні представлення
 
 ```text
-data/processed/trpa1_assay_aware_primary_conservative.csv
+Morgan ECFP4, radius 2, 2048 bits, без chirality
+RDKit-15 physicochemical descriptors
+ChemBERTa-CLS, 384 dimensions
+MolFormer-Mean, 768 dimensions
 ```
 
-Поточний стан файла:
-
-| Показник | Значення |
-|---|---:|
-| Activity rows | 1 946 |
-| Унікальні молекули | 1 444 |
-| Assays | 76 |
-| Documents | 44 |
-| Колонки | 35 |
-| Роки | 2010–2025 |
-| Confidence score | усі рядки = 9 |
-| Units | усі рядки = nM |
-
-Один рядок означає:
+### Регресійні алгоритми
 
 ```text
-конкретна молекула
-+ конкретний assay
-+ конкретне вимірювання IC50/pIC50
-+ доступні параметри протоколу
+RandomForestRegressor
+XGBRegressor
 ```
 
-### Порівняння
-
-#### Model 1 — structure-only control
+### Основна валідація
 
 ```text
-canonical_smiles → molecular representation → predicted pic50
+3 scaffold partitions
+× 5 folds
+Bemis–Murcko scaffold grouping
+однакові folds для всіх моделей
+збережені OOF predictions
 ```
 
-#### Model 2 — assay-aware
-
-```text
-canonical_smiles
-+ method
-+ agonist category
-+ agonist level/concentration
-+ cell line
-+ preincubation
-+ application order
-+ construct
-→ predicted pic50
-```
-
-Обидві моделі повинні:
-
-- навчатися на тих самих records;
-- використовувати ті самі folds;
-- не мати exact molecule/scaffold leakage;
-- оцінюватися парно на тих самих out-of-fold predictions.
-
-Primary metrics:
+Основні метрики:
 
 ```text
 RMSE
-MAE
 R²
 Spearman correlation
 ```
 
----
+MAE додатково використано для H5.
 
-## 7. Два різні ML-файли — не плутати
+Коректний узагальнений висновок:
 
-### `data/processed/trpa1_primary_dataset.csv`
+> Morgan fingerprints і ChemBERTa embeddings показали близьку якість. Стабільної переваги складніших learned representations над Morgan не встановлено.
 
-```text
-одна молекула = один рядок
-```
-
-- 1 645 молекул;
-- pChEMBL агрегований медіаною між різними вимірюваннями та assays;
-- використаний у вже виконаному structure-only benchmark;
-- не містить окремого assay context для кожного вимірювання.
-
-### `data/processed/trpa1_assay_aware_primary_conservative.csv`
+Некоректні висновки:
 
 ```text
-одне вимірювання в одному assay = один рядок
-```
-
-- одна молекула може повторюватися;
-- зберігає `assay_chembl_id`, `document_chembl_id` і protocol fields;
-- використовується для поточного assay-aware експерименту.
-
-**Не замінювати один файл іншим.**
-
----
-
-## 8. Як таблиці пов’язані між собою
-
-### Exact activity record
-
-```text
-trpa1_assay_aware_primary_conservative.activity_id
-=
-trpa1_current_api_raw.activity_id
-```
-
-### Assay
-
-```text
-trpa1_assay_aware_primary_conservative.assay_chembl_id
-=
-assay_table.assay_id
-=
-trpa1_assay_audit.assay_chembl_id
-=
-ключ у trpa1_assay_cache.json
-```
-
-### ChEMBL document / source
-
-Прямий join:
-
-```text
-trpa1_assay_aware_primary_conservative.document_chembl_id
-=
-source_registry.document_id
-```
-
-Альтернативний маршрут:
-
-```text
-assay_chembl_id
-→ assay_table.assay_id
-→ assay_table.source_id
-→ source_registry.source_id
-```
-
-### Молекула
-
-```text
-molecule_chembl_id
-canonical_smiles
-```
-
-Для standardized structure identity в molecule-level dataset використовується `inchikey`.
-
----
-
-## 9. Структура репозиторію
-
-```text
-TRPA1-ML-benchmark/
-│
-├── README.md
-├── TRPA1_ML_benchmark.ipynb
-├── env.yml
-│
-├── data/
-│   ├── raw/
-│   │   ├── raw_trpa1_human.csv
-│   │   ├── trpa1_current_api_raw.csv
-│   │   ├── trpa1_current_api_metadata.json
-│   │   └── trpa1_raw_snapshots/
-│   │       └── ChEMBL_37_20260806T144919Z/
-│   │
-│   ├── processed/
-│   │   ├── trpa1_primary_dataset.csv
-│   │   ├── trpa1_assay_aware_primary_conservative.csv
-│   │   ├── trpa1_current_api_aggregated.csv
-│   │   ├── trpa1_human_clean.csv
-│   │   ├── trpa1_agonists.csv
-│   │   ├── decoys_raw.csv
-│   │   ├── decoys_clean.csv
-│   │   └── trpa1_v36_v37_*.csv
-│   │
-│   └── assays/
-│       ├── assay_table.csv
-│       ├── trpa1_assay_audit.csv
-│       ├── trpa1_assay_audit_metadata.json
-│       ├── trpa1_assay_audit_summary.csv
-│       ├── trpa1_assay_cache.json
-│       ├── protocol_decomposition.csv
-│       ├── protocol_families.csv
-│       ├── protocol_metadata.json
-│       └── paired_contrasts.csv
-│
-├── sources/
-│   ├── source_registry.csv
-│   └── papers/
-│
-├── results/
-│   ├── tables/
-│   ├── figures/
-│   └── checkpoints/
-│
-├── scripts/
-│   ├── 01_fetch_trpa1_raw_snapshot.py
-│   ├── 02_summarize_trpa1_snapshot.py
-│   ├── assay_audit_reviewed.py
-│   ├── protocol_decomposition.py
-│   ├── Grid_Benchmark.py
-│   ├── chemberta_benchmark.py
-│   ├── chemprop_baseline.py
-│   ├── morgan_dmpnn_cv.py
-│   ├── MihaiExperimentReplication.py
-│   ├── feature_importance.py
-│   ├── confound_check.py
-│   ├── ablation_study.py
-│   ├── prepare_decoys.py
-│   ├── resolve_delta.py
-│   └── інші exploratory/legacy scripts
-│
-└── docs/
-    ├── paper_plan.md
-    ├── technical_report_v2.md
-    ├── Assey database state.docx
-    ├── Assey database state.odt
-    ├── Повний аудит 97 assays інгібування human TRPA1.pdf
-    └── archive/
+«Нейронні мережі програли»
+«Random Forest є найкращою можливою моделлю»
+«Модель уже знаходить нові антагоністи»
 ```
 
 ---
 
-## 10. Роль основних файлів
+## 8. Що не є головним напрямом цієї статті
 
-### `data/raw/`
+Наступні задачі можуть бути окремою майбутньою роботою, але не повинні затримувати поточний рукопис:
 
-Незмінені або максимально близькі до сирих дані.
+- повна assay-aware модель із protocol features;
+- прогноз pIC50 для конкретного assay;
+- повна ручна реконструкція всіх assay-протоколів;
+- новий D-MPNN run лише для спроби перевершити RF;
+- fine-tuning ChemBERTa або MolFormer;
+- prospective screening;
+- wet-lab validation;
+- остаточне закриття всіх bibliographic `recheck/unresolved` записів, які не використовуються як джерела тверджень у рукописі.
 
-#### `trpa1_raw_snapshots/ChEMBL_37_20260806T144919Z/`
-
-Зафіксований source-of-truth snapshot:
-
-- `activities_raw.jsonl` — raw activity responses;
-- `assays_raw.jsonl` — raw assay responses;
-- `assay_ids.txt` — список 97 assays;
-- `target_CHEMBL6007.json` — target metadata;
-- `snapshot_manifest.json` — склад і hashes snapshot;
-- `chembl_status_start.json`, `chembl_status_end.json` — версія ChEMBL;
-- `SNAPSHOT_COMPLETE.txt` — marker успішного завершення.
-
-#### `trpa1_current_api_raw.csv`
-
-Очищена record-level таблиця з 2 196 activity records. Головний join для `activity_id`.
-
-#### `raw_trpa1_human.csv`
-
-Розширений старіший raw export. Використовувати лише коли потрібного поля немає в `trpa1_current_api_raw.csv`, і перевіряти provenance.
-
-### `data/processed/`
-
-Готові або проміжні datasets.
-
-#### `trpa1_primary_dataset.csv`
-
-Molecule-level aggregated dataset для завершеного structure-only benchmark.
-
-#### `trpa1_assay_aware_primary_conservative.csv`
-
-Record-level dataset для поточного assay-aware експерименту.
-
-#### `trpa1_current_api_aggregated.csv`
-
-Агрегація поточного strict ChEMBL pull за standardized InChIKey. Технічний intermediate.
-
-#### `trpa1_human_clean.csv`
-
-Історичний clean molecule-level dataset. Не вважати автоматично актуальнішим за `trpa1_primary_dataset.csv`.
-
-#### `trpa1_agonists.csv`
-
-Окрема історична/додаткова вибірка agonist records. Не є входом поточного inhibitory-potency experiment.
-
-#### `decoys_raw.csv`, `decoys_clean.csv`
-
-Decoys для replication ligand-vs-random-decoy classification. Не використовуються в regression pIC50 experiment.
-
-#### `trpa1_v36_v37_*.csv`
-
-Результати release-to-release comparison. Це version-stability check, не external validation.
-
-### `data/assays/`
-
-Assay metadata, курація і protocol decomposition.
-
-#### `assay_table.csv`
-
-Людська карта 97 assays:
-
-```text
-assay_id
-n_compounds
-dataset_role
-document_id
-year
-assay_summary
-source_id
-```
-
-#### `trpa1_assay_audit.csv`
-
-Технічна таблиця — один рядок на assay. Містить ChEMBL metadata, automatic flags та manual-review columns.
-
-#### `trpa1_assay_cache.json`
-
-Повні кешовані ChEMBL assay records. Використовується для перевірки descriptions, cell type, confidence score, target та document ID.
-
-#### `protocol_decomposition.csv`
-
-Один рядок на assay. Автоматично витягнуті protocol fields, evidence fragments і confidence labels.
-
-#### `protocol_families.csv`
-
-Групування assays за однаковими **витягнутими** полями. Це не доводить біологічну однорідність.
-
-#### `paired_contrasts.csv`
-
-Кандидатні assay pairs із shared compounds. Результати потребують source-level verification.
-
-### `sources/`
-
-#### `source_registry.csv`
-
-Бібліографічний/provenance registry для 55 ChEMBL documents:
-
-```text
-source_id
-document_id
-year
-assay_ids
-source_type
-title
-identifier
-status
-local_source
-notes
-```
-
-Статуси:
-
-- `verified` — source mapping підтверджений;
-- `partial` — source відомий, але protocol або exact mapping неповний;
-- `recheck` — суперечність або непідтверджена патентна сім’я;
-- `unresolved` — точне джерело ще не встановлено.
-
-**`verified source` не означає автоматично `verified assay protocol`.**
-
-#### `papers/`
-
-Локальні статті та Supporting Information. Наявність PDF не означає, що assay mapping уже перевірений.
-
-### `results/`
-
-- `tables/` — metrics, OOF predictions, folds, metadata;
-- `checkpoints/` — neural-network checkpoints;
-- `figures/` — рисунки.
-
-Canonical record конкретного benchmark run:
-
-```text
-grid_final_results_<timestamp>.csv
-grid_final_oof_<timestamp>.csv
-grid_final_fold_assignments_<timestamp>.csv
-grid_final_metadata_<timestamp>.json
-```
-
-Файли з `checkpoint` у назві можуть дублювати timestamped outputs; звіряти SHA.
-
-### `docs/`
-
-Робочі тексти та історичні звіти.
-
-- `technical_report_v2.md` — найповніший історичний технічний звіт;
-- `paper_plan.md` — план structure-only representation paper;
-- DOCX/ODT/PDF — assay audit у людському форматі.
-
-Якщо старий звіт конфліктує з README або фактичними CSV/metadata, пріоритет має:
-
-```text
-CSV/JSON data
-→ run metadata
-→ code
-→ README
-→ technical reports
-→ chat history
-```
-
-### `scripts/`
-
-Скрипти різного рівня готовності. Частина є exploratory або Colab-oriented.
-
-Ключові:
-
-- `01_fetch_trpa1_raw_snapshot.py` — створення snapshot; **не запускати для поточного проєкту без окремого рішення**;
-- `02_summarize_trpa1_snapshot.py` — опис snapshot;
-- `assay_audit_reviewed.py` — assay-level audit;
-- `protocol_decomposition.py` — parsing protocol fields;
-- `Grid_Benchmark.py` — завершений structure-only 4×2 benchmark;
-- `morgan_dmpnn_cv.py`, `chemprop_baseline.py` — graph-model experiments;
-- `MihaiExperimentReplication.py` — ligand-vs-decoy replication;
-- `feature_importance.py`, `confound_check.py`, `ablation_study.py` — supplementary analyses.
+Assay audit залишається важливим для опису неоднорідності й обмежень набору, але **assay-aware prediction більше не є центральним експериментом цієї статті**.
 
 ---
 
-## 11. `trpa1_primary_dataset.csv`: опис колонок
+## 9. Що не можна стверджувати
 
-| Колонка | Значення |
-|---|---|
-| `inchikey` | standardized molecular identity |
-| `standard_type` | activity endpoint; у strict subset — `IC50` |
-| `std_smiles` | standardized canonical isomeric SMILES |
-| `molecule_chembl_id` | representative ChEMBL molecule ID |
-| `pchembl_median` | median pChEMBL між усіма retained measurements молекули |
-| `pchembl_min` | minimum reported pChEMBL |
-| `pchembl_max` | maximum reported pChEMBL |
-| `pchembl_std` | SD між measurements; порожнє при одному measurement |
-| `n_measurements` | кількість measurements для молекули |
-| `assay_types` | ChEMBL assay-type codes; **не надійна biological modality** |
-| `year_min` | найраніший document year |
-| `year_max` | найпізніший document year |
-| `scaffold` | Bemis–Murcko scaffold |
-| `split` | історичний single train/test split; не заміна current CV folds |
-
-`pchembl_median` — агрегована літературна мітка, а не protocol-specific potency.
+- що assay heterogeneity створює універсальну «стелю» R²;
+- що встановлено причинний вплив конкретного assay-протоколу;
+- що neural representations принципово непридатні для TRPA1;
+- що random forest остаточно переміг усі інші алгоритми;
+- що ligand-versus-decoy AUC характеризує реальну якість прогнозу potency;
+- що модель prospectively підтвердила нові антагоністи TRPA1.
 
 ---
 
-## 12. `trpa1_assay_aware_primary_conservative.csv`: опис усіх колонок
+## 10. Канонічні файли
 
-### Ідентифікатори та provenance
+### Контекст і план статті
 
-| Колонка | Значення |
-|---|---|
-| `activity_id` | primary key конкретного ChEMBL activity record; найкращий join із raw CSV |
-| `record_id` | ChEMBL compound-record identifier; provenance |
-| `molecule_chembl_id` | ChEMBL molecule ID |
-| `parent_molecule_chembl_id` | parent molecule ID; у поточному файлі фактично дублює molecule ID |
-| `canonical_smiles` | структура для побудови molecular representation |
-| `assay_chembl_id` | ID конкретного assay |
-| `document_chembl_id` | ID ChEMBL document/source record |
-| `document_year` | рік документа |
+```text
+README.md
+STATUS.md
+docs/paper_plan.md
+docs/methods_fact_sheet.md
+docs/TRPA1_METHODS_AUDIT_v2.md
+docs/TRPA1_METHODS_AUDIT_v2.docx
+```
 
-### Activity value
+### Дані
 
-| Колонка | Значення |
-|---|---|
-| `standard_value_num` | IC50 у standard units; **не подавати моделі, бо це target leakage** |
-| `standard_units` | units; у поточному файлі `nM` |
-| `pic50` | обчислений target: `-log10(IC50 in molar)` |
-| `reported_pchembl` | ChEMBL-reported pChEMBL; **не predictive feature** |
-| `pchembl_delta` | `reported_pchembl - pic50`; QC різниці округлення |
+```text
+data/raw/trpa1_raw_snapshots/ChEMBL_37_20260806T144919Z/
+data/raw/trpa1_current_api_raw.csv
+data/processed/trpa1_primary_dataset.csv
+data/assays/assay_table.csv
+sources/source_registry.csv
+```
 
-### Protocol fields
+### Основний benchmark
 
-| Колонка | Значення |
-|---|---|
-| `method` | normalized modality: calcium fluorescence, electrophysiology, radiometric calcium, unknown |
-| `agonist` | точний normalized challenge activator |
-| `agonist_model_category` | укрупнена категорія агоніста для моделювання |
-| `agonist_level` | EC50, EC80 тощо |
-| `agonist_concentration_uM` | числова концентрація активатора в µM |
-| `cell_line` | нормалізована cell-line family, зараз переважно CHO/HEK293 |
-| `compound_preincubation_min` | час контакту test compound до agonist addition |
-| `activity_time_min` | змішане time field; **не використовувати до semantic QC** |
-| `application_order` | порядок додавання, наприклад `compound_before_agonist` |
-| `protocol_fingerprint` | composite diagnostic label; **не model feature у поточному стані** |
-| `construct` | wild type, mutant/chimera або not reported |
+```text
+results/tables/grid_final_results_20260801-152155.csv
+results/tables/grid_final_oof_20260801-152155.csv
+results/tables/grid_final_fold_assignments_20260801-152155.csv
+results/tables/grid_final_metadata_20260801-152155.json
+```
 
-### QC та курація
+### Аналізи H1–H5
 
-| Колонка | Значення |
-|---|---|
-| `confidence_score` | ChEMBL target confidence |
-| `data_validity_comment` | ChEMBL validity note |
-| `potential_duplicate` | duplicate flag |
-| `source_review_status` | рівень protocol/source review |
-| `source_note` | людська нотатка про protocol verification |
-| `compound_assay_measurement_count` | число measurements для тієї самої molecule × assay |
-| `is_compound_assay_replicate` | чи має molecule × assay більше одного record |
-| `include_primary_conservative` | inclusion flag для conservative subset |
-| `include_broad_sensitivity` | inclusion flag для broad/sensitivity logic |
-| `primary_exclusion_reasons` | причини виключення з conservative subset |
-| `broad_exclusion_reasons` | причини виключення з broad subset |
+```text
+results/tables/FINAL_H1_scaffold_performance.csv
+results/tables/FINAL_H2_variability_vs_error.csv
+results/tables/FINAL_H3_mihai_replication_summary.csv
+results/tables/FINAL_H4_similarity_vs_error.csv
+results/tables/FINAL_H5_random_vs_scaffold.csv
+results/tables/FINAL_H5_random_oof_morgan.csv
+results/tables/FINAL_H5_significance.csv
+results/tables/FINAL_H1_H5_METADATA.json
+docs/FINAL_H1_H5_CHECKED_REPORT.md
+scripts/analyze_h1_h5.py
+scripts/test_h5_validation_difference.py
+```
 
 ---
 
-## 13. Що таке `protocol_fingerprint`
+## 11. Пріоритет джерел істини
 
-Формат:
-
-```text
-record_species
-| construct
-| assay_modality
-| challenge_agonist
-| agonist_level
-| agonist_concentration
-| cell_line
-| application_order
-| compound_preincubation_min
-```
-
-Приклад:
+Якщо файли суперечать один одному, використовувати такий порядок:
 
 ```text
-human | not_reported | calcium_fluorescence | NA | NA | NA | HEK293 | NA | NA
+заморожені CSV/JSON і snapshot
+→ run metadata та hashes
+→ executable code
+→ STATUS.md
+→ docs/paper_plan.md
+→ README.md
+→ робочі звіти
+→ історія чатів
 ```
 
-Це лише компактна мітка для групування assays.
-
-Окремі protocol columns уже існують. Розбирати fingerprint назад не потрібно.
-
-### Поточне обмеження
-
-Fingerprint був сформований раніше, ніж частину окремих protocol fields виправили. У поточному CSV він не узгоджується з окремими колонками для частини assays.
-
-Правило:
-
-```text
-Не використовувати protocol_fingerprint як ML feature.
-```
-
-Після завершення QC його можна:
-
-- видалити з model-input table;
-- або перегенерувати з фінальних окремих колонок.
+README є навігатором і стислим відображенням затвердженого стану, але конкретні числові твердження слід звіряти з канонічними таблицями та metadata.
 
 ---
 
-## 14. Поточне покриття protocol fields
+## 12. Інструкції для нового чату або AI-асистента
 
-Покриття на рівні 76 assays:
+Перед роботою прочитати:
 
-| Поле | Assays із корисним значенням |
-|---|---:|
-| `method` | 65 / 76 |
-| `agonist` / `agonist_model_category` | 52 / 76 |
-| `cell_line` | 44 / 76 |
-| `agonist_concentration_uM` | 12 / 76 |
-| `application_order` | 8 / 76 |
-| `agonist_level` | 7 / 76 |
-| `compound_preincubation_min` | 7 / 76 |
-| `activity_time_min` | 6 / 76 |
-| `construct` | 1 / 76 |
+```text
+README.md
+STATUS.md
+docs/paper_plan.md
+docs/methods_fact_sheet.md
+results/tables/FINAL_H1_H5_METADATA.json
+```
 
-Не оцінювати coverage лише за кількістю рядків: великі patent assays повторюють однакові protocol values для сотень молекул.
+Після цього:
+
+1. Не змінювати затверджене центральне питання без прямого погодження автора.
+2. Не робити нового ChEMBL extraction.
+3. Не плутати 2 196 record-level measurements із 1 645 molecule-level rows.
+4. Не перегенеровувати заморожені benchmark outputs новими версіями бібліотек без окремого sensitivity run.
+5. Чітко розрізняти `DONE`, `PRELIMINARY`, `PLANNED` і `BROKEN`.
+6. Не повертати assay-aware prediction у центр поточної статті.
+7. Не подавати H3 як точну prospective virtual-screening validation.
+8. Усі нові результати супроводжувати input/output hashes, environment metadata та відтворюваним кодом.
 
 ---
 
-## 15. Відомі проблеми assay-aware table
-
-Перед моделюванням потрібен assay-level QC.
-
-### 1. `protocol_fingerprint` застарів
-
-Не використовувати до регенерації.
-
-### 2. `activity_time_min` семантично неоднорідний
-
-Колонка може змішувати:
-
-- preincubation;
-- measurement duration;
-- time after treatment;
-- cell-expression/incubation duration.
-
-Також є floating artifacts на кшталт `10.002` і `4.9998`.
-
-Не використовувати як feature до розділення на конкретні типи часу.
-
-### 3. Частина `compound_preincubation_min` пропущена
-
-У ChEMBL descriptions є явні значення, які parser не завжди переніс у фінальний CSV.
-
-Відомі кандидати для ручної перевірки:
+## 13. Поточна виробнича послідовність
 
 ```text
-CHEMBL3789590
-CHEMBL3791636
-CHEMBL4022611
-CHEMBL4049011
-CHEMBL5360087
+1. Канонічний raw → primary dataset build script
+2. Перевірка відтворення counts, columns і hashes
+3. Остаточні рисунки та зведені таблиці
+4. Завершення «Матеріалів та методів»
+5. Написання «Результатів та обговорення» за H1–H5
+6. Вступ, висновки, українське й англійське резюме
+7. Повний рукопис для наукового керівника
 ```
 
-### 4. `method` потребує точкового QC
-
-Наприклад, `[45]Ca²⁺ influx by microbeta plate count` не слід називати fluorescence assay.
-
-### 5. `cell_line` надто грубо нормалізована
-
-Поточні сімейства CHO/HEK293 можуть приховувати:
+Поточне безпосереднє завдання:
 
 ```text
-CHO-K1
-CHO-TREX
-HEK293F
-HEK293T
-HEK293-TREx
-T-REx-293
-IMR-90
-```
-
-Бажано мати дві колонки:
-
-```text
-cell_line_family
-cell_line_exact
-```
-
-### 6. Replicates
-
-Не трактувати кілька measurements однієї molecule × assay як незалежні біологічні observations без наперед визначеного правила агрегації.
-
-### 7. Provenance семи вилучених records
-
-У 76 primary assays у сирому наборі було 1 953 records, а у conservative file — 1 946. Причина вилучення семи records має бути відтворювано зафіксована в коді або audit output.
-
----
-
-## 16. Які колонки дозволено подавати моделі
-
-### Structure input
-
-```text
-canonical_smiles
-```
-
-Із нього генеруються:
-
-- Morgan fingerprint;
-- RDKit descriptors;
-- frozen embedding;
-- graph representation.
-
-### Target
-
-```text
-pic50
-```
-
-### Candidate assay-aware features після QC
-
-```text
-method
-agonist_model_category
-agonist_level
-agonist_concentration_uM
-cell_line
-compound_preincubation_min
-application_order
-construct
-```
-
-### Не використовувати як predictive features
-
-```text
-standard_value_num
-reported_pchembl
-pchembl_delta
-activity_id
-record_id
-assay_chembl_id
-document_chembl_id
-source_review_status
-source_note
-protocol_fingerprint
-```
-
-Причини:
-
-- target leakage;
-- запам’ятовування assay/document identity;
-- текстова або ручна інформація, недоступна для справжнього нового prediction;
-- дублювання protocol fields.
-
-IDs можна використовувати лише для joins, grouping і leakage-safe splitting.
-
----
-
-## 17. Правила валідації assay-aware experiment
-
-1. Structure-only і assay-aware models використовують ті самі records.
-2. Exact molecule не може потрапити одночасно в train і test.
-3. Основне групування — molecular scaffold; exact molecules автоматично залишаються в одному fold.
-4. Assay ID, document ID і source ID не є features.
-5. Unknown protocol values не вгадуються; вони залишаються explicit `unknown`.
-6. Feature preprocessing fit лише на train fold.
-7. Усі out-of-fold predictions зберігаються.
-8. Різниця між моделями оцінюється парно на тих самих records/scaffolds.
-9. Покращення predictive performance не доводить причинний ефект конкретного protocol variable.
-10. Document-held-out evaluation — окремий stress test, не заміна scaffold validation.
-
----
-
-## 18. Найближчий план роботи
-
-### Крок 1 — QC protocol fields
-
-Перевірити 76 assays, а не 1 946 рядків:
-
-```text
-method
-agonist_model_category
-agonist_level
-agonist_concentration_uM
-cell_line
-compound_preincubation_min
-application_order
-construct
-```
-
-### Крок 2 — виправити record-level table
-
-- внести manual corrections;
-- розділити `activity_time_min` на семантично окремі поля або не використовувати;
-- додати `cell_line_exact`;
-- перегенерувати або видалити `protocol_fingerprint`;
-- зафіксувати причину вилучення семи records;
-- зберегти metadata і SHA-256.
-
-### Крок 3 — заморозити experimental protocol
-
-До перегляду результатів зафіксувати:
-
-- molecular representation;
-- estimator;
-- folds;
-- protocol features;
-- missing-value handling;
-- primary metrics;
-- statistical comparison.
-
-### Крок 4 — Model 1 проти Model 2
-
-```text
-Model 1: structure only
-Model 2: structure + verified assay features
-```
-
-### Крок 5 — secondary analyses
-
-- matched homogeneous subset;
-- document-held-out stress test;
-- paired-assay analysis після exact patent mapping.
-
----
-
-## 19. Інструкції для AI-асистента в новому чаті
-
-1. Спочатку прочитай цей README.
-2. Не реконструюй стан проєкту з пам’яті або старого чату.
-3. Не роби нового ChEMBL extraction.
-4. Для чисел і стану роботи використовуй:
-   ```text
-   data files
-   → metadata
-   → code
-   → README
-   → reports
-   → chat
-   ```
-5. Чітко розрізняй:
-   ```text
-   DONE
-   PRELIMINARY
-   PLANNED
-   BROKEN
-   ```
-6. Не називай source mapping verified, якщо збігається лише назва.
-7. Не заповнюй unknown protocol fields припущеннями.
-8. Не використовуй `protocol_fingerprint` як готову ML feature.
-9. Не повертайся до structure-only benchmark як до «наступного експерименту» — він уже виконаний.
-10. Поточна робота:
-   ```text
-   QC trpa1_assay_aware_primary_conservative.csv
-   → structure-only vs assay-aware prediction
-   ```
-
----
-
-## 20. Відтворюваність і відомі engineering gaps
-
-### `env.yml`
-
-Поточний файл не містить повного ML environment. Перед фінальним запуском потрібно зафіксувати щонайменше:
-
-```text
-python
-numpy
-pandas
-scipy
-rdkit
-scikit-learn
-xgboost
-transformers
-torch
-chemprop
-```
-
-### `embeddings_all.npz`
-
-Файл використовувався structure-only benchmark, але не зберігається в репозиторії. Run metadata містить його SHA-256.
-
-### Colab-oriented scripts
-
-Деякі скрипти містять:
-
-- Google Drive paths;
-- notebook magic;
-- exploratory code;
-- historical filenames.
-
-Перед фінальним відтворюваним запуском їх слід перетворити на звичайні CLI scripts із repo-relative paths.
-
----
-
-## 21. Короткий checkpoint для нового чату
-
-```text
-PROJECT:
-Human TRPA1 inhibitory-potency ML with assay heterogeneity.
-
-DATA SOURCE:
-Frozen ChEMBL 37 snapshot, target CHEMBL6007, exact IC50 records.
-
-COMPLETED:
-Structure-only molecular-representation benchmark and 97-assay audit.
-
-CURRENT DATASET:
-data/processed/trpa1_assay_aware_primary_conservative.csv
-1946 records, 1444 molecules, 76 primary assays.
-
-CURRENT TASK:
-QC protocol columns, then compare:
-structure-only vs structure + assay conditions.
-
-DO NOT:
-re-extract ChEMBL,
-use protocol_fingerprint as feature,
-use assay/document IDs as features,
-confuse aggregated molecule-level and record-level datasets.
+створити scripts/03_build_primary_dataset.py
 ```
