@@ -1,200 +1,206 @@
 # STATUS — TRPA1 ML Project
 
-**Оновлено:** 27 серпня 2026 року  
-**Безпосередня мета:** передати науковому керівнику повний рукопис для
-подання до *Fiziologichnyi Zhurnal*.  
-**Назва статті:** ще не затверджена.
+**Оновлено:** 28 серпня 2026 року  
+**Безпосередня мета:** завершити складання повного рукопису, виконати
+наскрізну редактуру й передати його науковому керівнику для підготовки
+подання до *Fiziologichnyi Zhurnal*.
 
-## Затверджене центральне питання
+## Політика GitHub
 
-> **Наскільки точно можна за молекулярною структурою прогнозувати агреговані
-> за літературними даними значення pIC50 інгібування TRPA1 людини для
-> хімічних каркасів, не представлених під час навчання, і чи пов’язана
-> похибка такого прогнозу з розбіжністю опублікованих значень для тієї самої
-> сполуки?**
+AI-асистенти мають лише read-only доступ у межах робочого процесу проєкту.
+Будь-які зміни готуються як окремі файли; комітить і пушить лише власник
+репозиторію.
 
-## Походження даних
+## Назва статті
 
-- Початковий molecule-level benchmark dataset був сформований із ChEMBL 36
-  під історичною назвою `trpa1_antagonists.csv`.
-- Той самий strict IC50-filter і standardization pipeline було повторено для
-  ChEMBL 37.
-- Перевірка показала 1 645 / 1 645 спільних стандартизованих сполук,
-  0 нових, 0 вилучених і 0 змінених aggregate values.
-- Поточний канонічний файл:
-  `data/processed/trpa1_primary_dataset.csv`.
-- Заморожена ChEMBL 37 record-level таблиця містить 2 196 придатних
-  IC50-записів із 97 assays і 55 ChEMBL documents.
-- Основний benchmark отриманий на агрегованому molecule-level dataset.
+> **Машинне навчання для прогнозування інгібування TRPA1 людини: валідація
+> за хімічними каркасами, хімічна віддаленість і неоднорідність
+> літературних даних**
 
-## Що завершено
+Українська назва затверджена автором. Англійський варіант перевіряється під
+час фінального складання двомовного титульного й резюме-блоку.
 
-- зафіксовано ChEMBL 37 snapshot;
-- підтверджено ідентичність molecule-level наборів ChEMBL 36 і ChEMBL 37;
-- виконано structure-only benchmark:
+## Мета роботи
+
+Оцінити точність прогнозування агрегованого pIC50 інгібування TRPA1 людини
+для нових хімічних каркасів і перевірити, чи пов’язана похибка прогнозу з
+розбіжністю опублікованих значень для тієї самої сполуки, хімічною
+віддаленістю та способом поділу даних.
+
+## Дані
+
+```text
+ChEMBL 37
+CHEMBL6007 — human TRPA1
+exact IC50 records with pChEMBL
+2 196 activity records
+1 645 standardized compounds
+544 Bemis–Murcko scaffolds
+97 assays
+55 ChEMBL documents
+2010–2025
+```
+
+Канонічний molecule-level файл:
+
+```text
+data/processed/trpa1_primary_dataset.csv
+```
+
+## Наукова частина — завершено
+
+- ChEMBL 37 snapshot і provenance;
+- стандартизація та molecule-level aggregation;
+- structure-only benchmark:
   Morgan, RDKit-15, ChemBERTa, MolFormer × RF/XGBoost;
-- виконано три 5-кратні розділення за Bemis–Murcko scaffolds;
-- збережено fold assignments і out-of-fold predictions;
-- виконано аудит 97 assays і source registry;
-- перевірено затверджені гіпотези H1–H5;
-- виконано статистичні перевірки H2, H4 і H5;
-- підготовлено версію розділу «Матеріали та методи» для source audit;
-- у репозиторії є виконувані Colab-notebooks для generation embeddings і
-  основного benchmark.
+- три незалежні 5-кратні розділення за хімічними каркасами;
+- out-of-fold predictions і fold assignments;
+- аудит 97 assays;
+- source registry;
+- аналізи H1–H5;
+- cluster-bootstrap для H2 і H4;
+- random-versus-scaffold comparison для H5;
+- manuscript tables і figures.
 
-## Затверджені гіпотези та результати
+## Основні результати
 
-### H1 — прогноз для нових каркасів
+### H1
 
-**Підтримана.** RF/XGBoost + Morgan прогнозують агреговане pIC50 краще за
-mean baseline; середнє scaffold-CV `R² ≈ 0,57`.
+RF/XGBoost + Morgan прогнозують агреговане pIC50 для нових каркасів краще
+за mean baseline; середнє R² при валідації за каркасами становить приблизно
+0,57.
 
-### H2 — розбіжність опублікованих значень
+### H2
 
-**Виявлено слабку позитивну асоціацію на рівні assays.**
+- 393 multi-assay compounds;
+- `ρ = 0,127–0,164`;
+- 52 multi-document compounds;
+- `ρ = 0,347–0,449`.
 
-- 393 сполуки мають значення щонайменше з двох assays.
-- Зв’язок між розкидом pIC50 і похибкою: `ρ = 0,127–0,164`.
-- 52 сполуки представлені щонайменше у двох документах.
-- Для них зв’язок сильніший: `ρ = 0,347–0,449`, але ця підвибірка мала й
-  невипадкова.
+Широкий multi-assay зв’язок слабкий. Міждокументний результат сильніший,
+але підвибірка мала й невипадкова.
 
-Технічні записи всередині одного assay спочатку агрегуються медіаною.
+### H3
 
-### H3 — допоміжна ligand-versus-random-decoy постановка
+Допоміжна постановка ligand-versus-random-decoy дала:
 
-**Підтримує methodological contrast.** Випадкова класифікація дає
-`AUC = 0,9968–0,9983`, але:
+```text
+CV AUC = 0,9968–0,9983
+```
 
-- використовує Morgan замість MNA;
-- використовує інший набір і кількість decoys;
-- decoys не підібрані за фізико-хімічними властивостями;
-- не є точною реплікацією Mihai et al.;
-- не доводить practical prospective virtual screening.
+Це methodological contrast, а не точна реплікація Mihai et al. і не
+prospective validation.
 
-Коректна назва: **допоміжне відтворення постановки
-ligand-versus-random-decoy**.
+### H4
 
-### H4 — хімічна віддаленість
+Хімічна віддаленість демонструє невеликий, але стабільний зв’язок із
+похибкою:
 
-**Підтримана як невеликий, але стабільний зв’язок.** Чим менша подібність
-до найближчої навчальної молекули, тим більша похибка:
-`ρ ≈ −0,177` для RF і XGBoost.
+```text
+ρ ≈ −0,177
+```
 
-### H5 — random split проти scaffold split
+### H5
 
-**Підтримана.**
+```text
+RF:       R² 0,572 scaffold → 0,640 random
+XGBoost:  R² 0,567 scaffold → 0,638 random
+```
 
-- RF: `R² 0,572 → 0,640`;
-- XGBoost: `R² 0,567 → 0,638`;
-- приблизно 79% random-test molecules мають scaffold у train.
+При random split приблизно 79% тестових молекул мають scaffold у train.
 
-## Головний висновок
+## Рукопис — поточний стан
 
-Найсильніше видиму якість моделі змінює спосіб поділу даних. Хімічна
-віддаленість демонструє невеликий, але стабільний зв’язок із похибкою.
-Розбіжність опублікованих значень пояснює лише невелику частину залишкової
-похибки на рівні assays і показує сильніший зв’язок лише в малій
-міждокументній підвибірці.
+| Компонент | Стан | Файл |
+|---|---|---|
+| Назва статті | затверджено | `docs/TRPA1_STRUCTURED_ABSTRACTS_AND_TITLES_v2.docx` |
+| Українське й англійське резюме | готово | `docs/TRPA1_STRUCTURED_ABSTRACTS_AND_TITLES_v2.docx` |
+| Вступ | готово | `docs/TRPA1_INTRODUCTION_v2.docx` |
+| Матеріали та методи | готова робоча версія | `docs/TRPA1_METHODS_AUDIT_v2.docx` / `.md` |
+| Результати та обговорення | готова актуальна v2; у repo ще v1 | `TRPA1_RESULTS_AND_DISCUSSION_v2.docx` |
+| Висновки | готово | `docs/TRPA1_CONCLUSIONS_v1.docx` |
+| Список літератури | 20 джерел, готово | `docs/TRPA1_REFERENCE_LIST_v1.docx` |
+| Локальні PDF джерел | наявні | `sources/papers/` |
+| Таблиці | готово | `results/tables/MANUSCRIPT_*` |
+| Рисунки | готово | `results/figures/MANUSCRIPT_*` |
+| Єдиний файл рукопису | складається й редагується | локальна робоча версія автора |
+
+### Важлива версійна примітка
+
+У репозиторії зараз лежить:
+
+```text
+docs/TRPA1_RESULTS_AND_DISCUSSION_v1.docx
+```
+
+Актуальна виправлена версія:
+
+```text
+TRPA1_RESULTS_AND_DISCUSSION_v2.docx
+```
+
+Перед фінальною фіксацією стану репозиторію `v1` слід замінити `v2` або
+чітко перенести `v1` до archive.
+
+## Поточна робота
+
+```text
+об’єднати розділи
+→ узгодити нумерацію посилань
+→ звірити всі числа з канонічними таблицями
+→ прибрати внутрішні audit-маркери
+→ перевірити українську й англійську термінологію
+→ вставити таблиці та рисунки після першої згадки
+→ перевірити обсяг і формат журналу
+→ передати рукопис науковому керівнику
+```
+
+## Невиконаний технічний backlog
+
+Не позначати як завершене:
+
+1. `scripts/build_primary_dataset.py`;
+2. robustness run без 27 records із 12 пізніше виключених assays;
+3. robustness run з assay-balanced target.
+
+Ці задачі є відтворювальним/QC backlog. Вони не повинні мовчки змінювати
+заморожений benchmark. Рішення про їх виконання до формального подання
+приймається окремо після складання повного рукопису.
 
 ## Що не можна стверджувати
 
 - що assay heterogeneity створює універсальну «стелю» R²;
-- що random forest остаточно переміг нейромережі;
+- що Random Forest остаточно переміг нейромережі;
 - що встановлено причинний вплив конкретного assay-протоколу;
 - що H3 є точною реплікацією Mihai et al.;
-- що модель уже довела здатність знаходити нові антагоністи prospectively.
-
-## Що більше не є головним напрямом цієї статті
-
-- повна assay-aware модель із неповних protocol fields;
-- прогноз pIC50 для конкретного assay;
-- пошук нової архітектури лише для перемоги над RF;
-- повна реконструкція всіх assay-протоколів перед першим рукописом.
-
-## Підтверджений provenance embeddings
-
-### ChemBERTa
-
-```text
-DeepChem/ChemBERTa-77M-MTR
-CLS representation
-384 dimensions
-max_length = 128
-```
-
-### MolFormer
-
-```text
-ibm/MoLFormer-XL-both-10pct
-revision = 7b12d946c181a37f6012b9dc3b002275de070314
-transformers = 4.44.2
-mean pooling
-768 dimensions
-max_length = 202
-```
-
-Generation notebook:
-
-```text
-scripts/GroupKFold_CV.ipynb
-```
-
-Canonical benchmark notebook:
-
-```text
-scripts/grid_benchmark.ipynb
-```
-
-`scripts/Grid_Benchmark.py` є історичним notebook-to-text export, а не
-канонічним standalone executable. Це не ставить під сумнів заморожені
-результати.
-
-## Поточний головний технічний крок
-
-Підготувати й додати до репозиторію канонічний:
-
-```text
-scripts/build_primary_dataset.py
-```
-
-Він має відтворити `data/processed/trpa1_primary_dataset.csv` із
-`data/raw/trpa1_current_api_raw.csv` без нового API extraction.
-
-Після цього виконати дві компактні robustness-перевірки:
-
-1. Morgan + RF/XGBoost після вилучення 27 records із 12 пізніше виключених
-   assays.
-2. Morgan + RF/XGBoost із assay-balanced target:
-   median усередині `compound × assay`, потім median між assays.
-
-Це не повторення повної 4 × 2 сітки.
+- що модель уже довела здатність prospectively знаходити нові антагоністи.
 
 ## Канонічні файли результатів
 
 ```text
+results/tables/grid_final_results_20260801-152155.csv
 results/tables/grid_final_oof_20260801-152155.csv
+results/tables/grid_final_fold_assignments_20260801-152155.csv
+results/tables/grid_final_metadata_20260801-152155.json
+
 results/tables/FINAL_H1_scaffold_performance.csv
 results/tables/FINAL_H2_variability_vs_error.csv
 results/tables/FINAL_H3_mihai_replication_summary.csv
 results/tables/FINAL_H4_similarity_vs_error.csv
 results/tables/FINAL_H5_random_vs_scaffold.csv
+results/tables/FINAL_H5_random_oof_morgan.csv
 results/tables/FINAL_H5_significance.csv
 results/tables/FINAL_H1_H5_METADATA.json
-results/figures/FINAL_H5_random_vs_scaffold_both_models.png
-docs/FINAL_H1_H5_CHECKED_REPORT.md
-scripts/analyze_h1_h5.py
-scripts/test_h5_validation_difference.py
 ```
 
-## Найближчі дії
+## Наступні дії
 
-1. Додати й перевірити `scripts/build_primary_dataset.py`.
-2. Виконати дві компактні robustness-перевірки.
-3. Внести перевірені corrections у «Матеріали та методи».
-4. Побудувати остаточні рисунки H2 і H4 та зведену таблицю.
-5. Написати «Результати та обговорення».
-6. Завершити повний рукопис.
+1. Завершити єдиний файл рукопису.
+2. Замінити репозиторну версію «Результатів та обговорення» на v2.
+3. Виконати наскрізну перевірку чисел, посилань, термінів і скорочень.
+4. Перевірити відповідність вимогам *Fiziologichnyi Zhurnal*.
+5. Передати рукопис науковому керівнику.
+6. Окремо вирішити долю трьох технічних QC-задач.
 
 ## Правило перенесення контексту
 
@@ -208,5 +214,5 @@ docs/methods_fact_sheet.md
 results/tables/FINAL_H1_H5_METADATA.json
 ```
 
-Після цього він не змінює затверджене питання або план без прямого
-погодження автора.
+Новий AI-асистент не змінює репозиторій, центральну мету, назву або
+зафіксовані результати без прямого погодження автора.
