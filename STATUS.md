@@ -212,6 +212,7 @@ STATUS.md
 docs/paper_plan.md
 docs/methods_fact_sheet.md
 results/tables/FINAL_H1_H5_METADATA.json
+journal_requirements_fz.md
 ```
 
 Новий AI-асистент не змінює репозиторій, центральну мету, назву або
